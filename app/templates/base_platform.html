@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ page_title or "Magic Stores" }}{% endblock %}</title>
+  <link rel="stylesheet" href="/static/platform.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/">Magic Stores</a>
+      <nav>
+        <a href="/">Stores</a>
+        <a href="/api/health">API</a>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer wrap">
+    <p>Configurable multi-store engine — the catalog is data; each store can have its own storefront.</p>
+  </footer>
+</body>
+</html>

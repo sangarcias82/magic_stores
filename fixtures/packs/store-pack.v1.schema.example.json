@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "store": {
+    "slug": "my-store",
+    "name": "My Store",
+    "currency": "USD",
+    "locale_default": "en",
+    "theme": {
+      "primary": "#1a5f4a",
+      "secondary": "#f7f4ef",
+      "accent": "#c45c26",
+      "logo_url": null
+    }
+  },
+  "categories": [],
+  "products": [],
+  "storefront": {
+    "copy_from_pack_dir": "storefront/",
+    "notes": "Optional. Importer copies this tree into app/storefronts/<slug>/."
+  }
+}

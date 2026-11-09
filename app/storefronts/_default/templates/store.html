@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero themed">
+  <h1>{{ store.name }}</h1>
+  <p class="lede">Currency {{ store.currency }} · locale {{ store.locale_default }}</p>
+</section>
+
+<section class="grid-two">
+  <div>
+    <h2>Categories</h2>
+    {% if categories %}
+    <ul class="plain-list">
+      {% for c in categories %}
+      <li>
+        <a href="/stores/{{ store.slug }}/c/{{ c.slug }}">{{ c.name }}</a>
+        <span class="meta">{{ c.property_definitions|length }} properties</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">No categories yet. Load a store pack or create the schema from admin.</p>
+    {% endif %}
+  </div>
+  <div>
+    <h2>Products</h2>
+    {% if products %}
+    <ul class="product-grid">
+      {% for p in products %}
+      <li>
+        <a href="/stores/{{ store.slug }}/p/{{ p.slug }}">{{ p.name }}</a>
+        <span class="price">{{ format_price(p.price_cents, store.currency) }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <p class="empty">Catalog is empty.</p>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}

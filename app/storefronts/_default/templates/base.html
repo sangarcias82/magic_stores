@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ page_title or store.name }}{% endblock %}</title>
+  <link rel="stylesheet" href="/stores/{{ store.slug }}/assets/style.css">
+  {% if theme is defined %}
+  <style>
+    :root {
+      --color-primary: {{ theme.primary }};
+      --color-secondary: {{ theme.secondary }};
+      --color-accent: {{ theme.accent }};
+    }
+  </style>
+  {% endif %}
+  {% block head_extra %}{% endblock %}
+</head>
+<body class="storefront storefront-{{ store.slug }}">
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/stores/{{ store.slug }}">{{ store.name }}</a>
+      <nav>
+        <a href="/stores/{{ store.slug }}">Catalog</a>
+        {% for page in store_pages|default([]) %}
+        <a href="/stores/{{ store.slug }}/pages/{{ page }}">{{ page|replace('-', ' ')|title }}</a>
+        {% endfor %}
+        <a href="/">All stores</a>
+      </nav>
+    </div>
+  </header>
+  <main class="wrap">
+    {% block content %}{% endblock %}
+  </main>
+  <footer class="site-footer wrap">
+    <p>{% block footer %}Base storefront · per-store styles and pages{% endblock %}</p>
+  </footer>
+</body>
+</html>

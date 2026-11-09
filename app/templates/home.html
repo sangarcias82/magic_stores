@@ -1,0 +1,26 @@
+{% extends "base_platform.html" %}
+{% block content %}
+<section class="hero">
+  <h1>Magic Stores</h1>
+  <p class="lede">One database schema for any vertical. Each store can own templates and styles under <code>storefronts/&lt;slug&gt;/</code>, falling back to <code>_default</code>.</p>
+</section>
+
+<section>
+  <h2>Stores</h2>
+  {% if stores %}
+  <ul class="store-list">
+    {% for s in stores %}
+    <li>
+      <a href="/stores/{{ s.slug }}">{{ s.name }}</a>
+      <span class="meta">{{ s.currency }} · {{ s.locale_default }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <div class="empty">
+    <p>No stores yet.</p>
+    <p class="hint">The engine starts empty on purpose. A store pack can create catalog data and optionally <code>storefronts/&lt;slug&gt;/</code> with that store's styles and pages.</p>
+  </div>
+  {% endif %}
+</section>
+{% endblock %}

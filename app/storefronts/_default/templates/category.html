@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="crumb"><a href="/stores/{{ store.slug }}">{{ store.name }}</a> / {{ category.name }}</p>
+<h1>{{ category.name }}</h1>
+{% if category.description %}<p class="lede">{{ category.description }}</p>{% endif %}
+
+{% if category.property_definitions is defined and category.property_definitions %}
+<section>
+  <h2>Property schema</h2>
+  <ul class="plain-list">
+    {% for d in category.property_definitions %}
+    <li><strong>{{ d.label }}</strong> <code>{{ d.key }}</code> · {{ d.prop_type.value if d.prop_type.value is defined else d.prop_type }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+<section>
+  <h2>Products</h2>
+  {% if products %}
+  <ul class="product-grid">
+    {% for p in products %}
+    <li>
+      <a href="/stores/{{ store.slug }}/p/{{ p.slug }}">{{ p.name }}</a>
+      <span class="price">{{ format_price(p.price_cents, store.currency) }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">No products in this category.</p>
+  {% endif %}
+</section>
+{% endblock %}

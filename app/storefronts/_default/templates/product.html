@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<p class="crumb"><a href="/stores/{{ store.slug }}">{{ store.name }}</a> / {{ product.name }}</p>
+<article class="product-detail">
+  <h1>{{ product.name }}</h1>
+  <p class="price">{{ format_price(product.price_cents, store.currency) }}</p>
+  {% if product.description %}<p>{{ product.description }}</p>{% endif %}
+
+  <h2>Properties</h2>
+  {% if product.properties %}
+  <dl class="props">
+    {% for prop in product.properties %}
+    <dt>{{ prop.label }}</dt>
+    <dd>
+      {% if prop.prop_type.value == 'image' or prop.prop_type == 'image' %}
+        {% if prop.value.media_path %}
+        <img src="{{ prop.value.media_path }}" alt="{{ prop.label }}" class="prop-image">
+        {% else %}
+        <span class="meta">No image</span>
+        {% endif %}
+      {% elif prop.prop_type.value == 'category_ref' or prop.prop_type == 'category_ref' %}
+        {% if prop.value.category_id %}
+        <span>Category #{{ prop.value.category_id }}</span>
+        {% else %}
+        <span class="meta">No reference</span>
+        {% endif %}
+      {% else %}
+        {{ prop.value.value if prop.value.value is defined else prop.value }}
+      {% endif %}
+    </dd>
+    {% endfor %}
+  </dl>
+  {% else %}
+  <p class="empty">This product has no property values.</p>
+  {% endif %}
+</article>
+{% endblock %}
