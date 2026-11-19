@@ -1,0 +1,32 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<h1>{{ t("admin.packs.title") }}</h1>
+<p class="lede">{{ t("admin.packs.lede") }}</p>
+
+{% if error %}
+<div class="form-error" role="alert">
+  <p>{{ error }}</p>
+  {% if issues %}
+  <ul class="pack-issues">
+    {% for issue in issues %}
+    <li>{% if issue.path %}<code>{{ issue.path }}</code>: {% endif %}{{ issue.message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  {% if record_id %}<p><a href="/admin/imports/{{ record_id }}">{{ t("admin.packs.view_record", id=record_id) }}</a></p>{% endif %}
+</div>
+{% endif %}
+
+<form method="post" action="/admin/packs" enctype="multipart/form-data" class="stack-form admin-form">
+  <label for="pack">{{ t("admin.packs.file") }}</label>
+  <input id="pack" name="pack" type="file" accept=".json,.zip,application/json,application/zip" required
+         {% if error %}aria-invalid="true"{% endif %}>
+  <p class="hint">{{ t("admin.packs.file_hint", max_mb=max_mb, zip_mb=zip_mb) }} <code>fixtures/packs/README.md</code></p>
+
+  <label class="checkbox"><input type="checkbox" name="update_existing" value="1" {% if update_existing %}checked{% endif %}>
+    {{ t("admin.packs.update_existing") }}</label>
+  <p class="hint">{{ t("admin.packs.update_hint") }}</p>
+
+  <button type="submit">{{ t("admin.packs.submit") }}</button>
+</form>
+{% endblock %}

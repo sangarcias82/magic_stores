@@ -1,0 +1,78 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import tree_label %}
+{% from "admin/_stock.html" import adjust_form with context %}
+{% block admin_content %}
+{% set base = "/admin/stores/" ~ store.slug ~ "/products" %}
+<div class="admin-heading">
+  <h1>{{ t("admin.tabs.products") }}</h1>
+  <span class="heading-actions">
+    {% if store_has_products %}<a class="button button-secondary" href="{{ base }}/export.csv" download>{{ t("admin.inventory.export") }}</a>{% endif %}
+    <a class="button button-secondary" href="/admin/stores/{{ store.slug }}/inventory">{{ t("admin.inventory.import") }}</a>
+    <a class="button" href="{{ base }}/new{% if selected_category %}?category_id={{ selected_category }}{% endif %}">{{ t("admin.product.new") }}</a>
+  </span>
+</div>
+{% if page_error %}<p class="form-error" role="alert">{{ page_error }}</p>{% endif %}
+
+{% if category_tree %}
+<form method="get" action="{{ base }}" class="filter-form">
+  <label for="category_id">{{ t("field.category") }}</label>
+  <select id="category_id" name="category_id">
+    <option value="">{{ t("admin.products.all_categories") }}</option>
+    {% for c, depth in category_tree %}
+    <option value="{{ c.id }}" {% if selected_category == c.id %}selected{% endif %}>{{ tree_label(c, depth) }}</option>
+    {% endfor %}
+  </select>
+  <label for="sku-search">{{ t("admin.products.sku_search") }}</label>
+  <input id="sku-search" name="sku" type="search" value="{{ sku_query }}" maxlength="64" placeholder="SOL-8T" autocomplete="off" spellcheck="false">
+  <button type="submit">{{ t("action.filter") }}</button>
+  {% if sku_query or selected_category %}<a href="{{ base }}">{{ t("admin.products.clear_filters") }}</a>{% endif %}
+</form>
+{% endif %}
+
+{% if products %}
+<table class="admin-table">
+  <thead>
+    <tr><th>{{ t("field.name") }}</th><th>{{ t("field.slug") }}</th><th>{{ t("field.sku") }}</th><th>{{ t("field.category") }}</th><th>{{ t("field.price") }}</th><th>{{ t("field.stock") }}</th><th>{{ t("admin.stock.adjust_column") }}</th><th>{{ t("field.status") }}</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for p in products %}
+    <tr id="product-{{ p.id }}">
+      <td><a href="{{ base }}/{{ p.id }}">{{ p.name }}</a></td>
+      <td><code>{{ p.slug }}</code></td>
+      <td>{% if p.sku %}<code>{{ p.sku }}</code>{% else %}<span class="meta">{{ t("value.not_set") }}</span>{% endif %}</td>
+      <td>{{ p.category.name }}</td>
+      <td>{{ format_price(p.price_cents, store.currency) }}</td>
+      <td class="number">{{ p.stock_on_hand }}{% if not p.in_stock %} <span class="meta">· {{ t("stock.out_of_stock") }}</span>{% elif p.stock_on_hand <= (p.low_stock_threshold if p.low_stock_threshold is not none else store.low_stock_threshold) %} <span class="meta low-stock-mark">· {{ t("admin.low_stock.low") }}</span>{% endif %}</td>
+      <td class="stock-cell">
+        {% set refused = adjusting_id == p.id %}
+        <details{% if refused %} open{% endif %}>
+          <summary>{{ t("admin.stock.adjust") }}</summary>
+          {{ adjust_form(store, p, adjusting_form if refused else None, "list", selected_category, sku_query) }}
+        </details>
+      </td>
+      <td>{% if p.is_active %}{{ t("status.active") }}{% else %}<span class="meta">{{ t("status.hidden") }}</span>{% endif %}</td>
+      <td class="actions">
+        <a href="{{ base }}/{{ p.id }}">{{ t("action.edit") }}</a>
+        {% if p.is_active %}<a href="/stores/{{ store.slug }}/p/{{ p.slug }}">{{ t("action.view") }}</a>{% endif %}
+        <a href="{{ base }}/{{ p.id }}/delete">{{ t("action.delete") }}</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">
+  {% if sku_query %}
+  <p>{{ t("admin.products.no_sku_match", sku=sku_query) }}</p>
+  {% else %}
+  <p>{{ t("admin.products.empty_in_category") if selected_category else t("admin.products.empty") }}</p>
+  {% endif %}
+  {% if category_tree %}
+  <p class="hint"><a href="{{ base }}/new{% if selected_category %}?category_id={{ selected_category }}{% endif %}">{{ t("admin.products.create") }}</a>.</p>
+  {% else %}
+  <p class="hint">{{ t("admin.products.need_category") }} <a href="/admin/stores/{{ store.slug }}/categories/new">{{ t("admin.products.create_category") }}</a> {{ t("admin.products.create_category_end") }}</p>
+  {% endif %}
+</div>
+{% endif %}
+<script src="/static/admin-stock.js" defer></script>
+{% endblock %}

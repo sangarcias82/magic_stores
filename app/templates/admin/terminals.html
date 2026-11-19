@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+{% set base = "/admin/stores/" ~ store.slug ~ "/terminals" %}
+<h1>{{ t("admin.tabs.terminals") }}</h1>
+<p class="lede">{{ t("admin.terminals.lede") }}</p>
+
+{% if terminals %}
+<table class="admin-table">
+  <thead>
+    <tr><th>{{ t("field.name") }}</th><th>{{ t("admin.terminals.code") }}</th><th>{{ t("field.type") }}</th>
+      <th>{{ t("field.status") }}</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for term in terminals %}
+    <tr data-code="{{ term.code }}" data-enabled="{{ 'true' if term.is_enabled else 'false' }}">
+      <td><a href="{{ base }}/{{ term.id }}">{{ term.name }}</a></td>
+      <td><code>{{ term.code }}</code></td>
+      <td>{{ t("admin.terminals.mock") if term.is_mock else (t("admin.terminals.bank_transfer") if term.is_bank_transfer else t("admin.terminals.real")) }}</td>
+      <td>{% if term.is_enabled %}{{ t("admin.terminals.enabled") }}{% else %}<strong class="warning">{{ t("admin.terminals.disabled") }}</strong>{% endif %}</td>
+      <td class="actions">
+        <a href="{{ base }}/{{ term.id }}">{{ t("action.edit") }}</a>
+        {% if term.is_enabled %}
+        <form method="post" action="{{ base }}/{{ term.id }}/disable" class="inline-form">
+          <button type="submit" class="link-button">{{ t("admin.terminals.disable") }}</button>
+        </form>
+        {% else %}
+        <form method="post" action="{{ base }}/{{ term.id }}/enable" class="inline-form">
+          <button type="submit" class="link-button">{{ t("admin.terminals.enable") }}</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if terminals | selectattr("is_enabled") | list | length == 0 %}
+<p class="form-error">{{ t("admin.terminals.none_enabled") }}</p>
+{% endif %}
+{% else %}
+<div class="empty"><p>{{ t("admin.terminals.empty") }}</p></div>
+{% endif %}
+{% endblock %}

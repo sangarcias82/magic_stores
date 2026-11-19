@@ -1,0 +1,149 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import invalid, error, tree_label %}
+{% from "admin/_stock.html" import adjust_form with context %}
+{% block admin_content %}
+{% set base = "/admin/stores/" ~ store.slug ~ "/products" %}
+<p class="crumb"><a href="{{ base }}">{{ t("admin.tabs.products") }}</a> / {{ product.name if product else t("admin.product.new") }}</p>
+<h1>{{ t("admin.product.heading", name=product.name) if product else t("admin.product.new") }}</h1>
+<p class="meta">{{ t("field.category") }}: <a href="/admin/stores/{{ store.slug }}/categories/{{ category.id }}">{{ category.name }}</a>
+  {% if not product %}· <a href="{{ base }}/new">{{ t("admin.product.choose_another") }}</a>{% endif %}</p>
+{% if product %}
+{# Saved values (the form below may hold a rejected edit); in_stock is what the public API says. #}
+<p class="meta product-summary">{{ t("field.sku") }}: {% if product.sku %}<code>{{ product.sku }}</code>{% else %}{{ t("value.not_set") }}{% endif %}
+  · {{ t("field.stock") }}: <strong>{{ product.stock_on_hand }}</strong>
+  · {{ t("admin.product.public_api") }}: {{ t("stock.in_stock") if product.in_stock else t("stock.out_of_stock") }}
+  · <a href="#stock">{{ t("admin.stock.adjust") }}</a></p>
+{% endif %}
+
+{% if form.errors %}<p class="form-error" role="alert">{{ t("form.fix_errors") }}</p>{% endif %}
+<form method="post" action="{{ base }}{% if product %}/{{ product.id }}{% endif %}" class="stack-form admin-form" novalidate>
+  <input type="hidden" name="category_id" value="{{ category.id }}">
+
+  <label for="name">{{ t("field.name") }}</label>
+  <input id="name" name="name" value="{{ form.name }}" maxlength="200" placeholder="Widget Blue M" required {{ invalid(form, "name") }}>
+  {{ error(form, "name") }}
+
+  <label for="slug">{{ t("field.slug") }}</label>
+  <input id="slug" name="slug" value="{{ form.slug }}" maxlength="64" placeholder="widget-blue-m" required {{ invalid(form, "slug") }}>
+  {{ error(form, "slug") }}
+  <p class="hint">{{ t("hint.used_in_urls") }} /stores/{{ store.slug }}/p/&lt;slug&gt;.</p>
+
+  <label for="sku">{{ t("field.sku") }}</label>
+  <input id="sku" name="sku" value="{{ form.sku }}" maxlength="64" placeholder="ABC-123" autocomplete="off" spellcheck="false" required {{ invalid(form, "sku") }}>
+  {{ error(form, "sku") }}
+  <p class="hint">{{ t("hint.sku") }}</p>
+
+  <label for="price">{{ t("field.price") }} ({{ store.currency }})</label>
+  <input id="price" name="price" value="{{ form.price }}" inputmode="decimal" placeholder="19.99" required {{ invalid(form, "price") }}>
+  {{ error(form, "price") }}
+
+  <label for="stock">{{ t("field.stock") }}</label>
+  <input id="stock" name="stock" value="{{ form.stock }}" inputmode="numeric" placeholder="0" required {{ invalid(form, "stock") }}>
+  {% if product %}<input type="hidden" name="stock_seen" value="{{ form.stock_seen }}">{% endif %}
+  {{ error(form, "stock") }}
+  <p class="hint">{{ t("hint.stock") }}</p>
+
+  <label for="low_stock">{{ t("admin.low_stock.product_field") }}</label>
+  <input id="low_stock" name="low_stock" value="{{ form.low_stock or "" }}" inputmode="numeric" placeholder="{{ store.low_stock_threshold }}" {{ invalid(form, "low_stock") }}>
+  {{ error(form, "low_stock") }}
+  <p class="hint">{{ t("admin.low_stock.product_hint", threshold=store.low_stock_threshold) }}</p>
+
+  <label for="description">{{ t("field.description") }}</label>
+  <textarea id="description" name="description" rows="4" maxlength="5000" {{ invalid(form, "description") }}>{{ form.description }}</textarea>
+  {{ error(form, "description") }}
+
+  <label for="status">{{ t("field.status") }}</label>
+  <select id="status" name="status" {{ invalid(form, "status") }}>
+    <option value="active" {% if form.status == "active" %}selected{% endif %}>{{ t("admin.product.status_active") }}</option>
+    <option value="hidden" {% if form.status == "hidden" %}selected{% endif %}>{{ t("status.hidden") }}</option>
+  </select>
+  {{ error(form, "status") }}
+
+  <fieldset class="type-options">
+    <legend>{{ t("admin.product.properties_of", name=category.name) }}</legend>
+    {% if not definitions %}
+    <p class="hint">{{ t("admin.product.no_definitions") }}
+      <a href="/admin/stores/{{ store.slug }}/categories/{{ category.id }}/properties/new">{{ t("admin.product.add_definition") }}</a>.</p>
+    {% endif %}
+    {% for d in definitions %}
+    {% set name = field_name(d) %}
+    {% set current = form.values.get(d.key, "") %}
+    {% set kind = d.prop_type.value %}
+    <label for="{{ name }}">{{ d.label }}{% if d.required %} <span aria-hidden="true">*</span>{% endif %}
+      <span class="meta">{{ type_labels[d.prop_type] }}</span></label>
+    {% if kind == "boolean" %}
+    <select id="{{ name }}" name="{{ name }}" {{ invalid(form, name) }}>
+      <option value="">{{ t("value.not_set") }}</option>
+      <option value="true" {% if current == "true" %}selected{% endif %}>{{ t("value.yes") }}</option>
+      <option value="false" {% if current == "false" %}selected{% endif %}>{{ t("value.no") }}</option>
+    </select>
+    {% elif kind == "enum" %}
+    {% set options = d.config.options or [] %}
+    <select id="{{ name }}" name="{{ name }}" {{ invalid(form, name) }}>
+      <option value="">{{ t("value.not_set") }}</option>
+      {% for o in options %}
+      <option value="{{ o }}" {% if current == o %}selected{% endif %}>{{ o }}</option>
+      {% endfor %}
+      {% if current and current not in options %}
+      <option value="{{ current }}" selected>{{ current }} {{ t("admin.product.no_longer_option") }}</option>
+      {% endif %}
+    </select>
+    {% elif kind == "category_ref" %}
+    <select id="{{ name }}" name="{{ name }}" {{ invalid(form, name) }}>
+      <option value="">{{ t("value.not_set") }}</option>
+      {% for c, depth in ref_choices[d.id] %}
+      <option value="{{ c.id }}" {% if current == c.id|string %}selected{% endif %}>{{ tree_label(c, depth) }}</option>
+      {% endfor %}
+    </select>
+    {% elif kind == "image" %}
+    <input id="{{ name }}" name="{{ name }}" value="{{ current }}" placeholder="{{ t('admin.product.image_placeholder') }}" {{ invalid(form, name) }}>
+    {% if current and not form.errors[name] %}<img src="{{ current }}" alt="" class="prop-thumb">{% endif %}
+    {% elif kind == "number" %}
+    <input id="{{ name }}" name="{{ name }}" value="{{ current }}" inputmode="decimal" {{ invalid(form, name) }}>
+    {% else %}
+    <input id="{{ name }}" name="{{ name }}" value="{{ current }}" maxlength="2000" {{ invalid(form, name) }}>
+    {% endif %}
+    {{ error(form, name) }}
+    {% endfor %}
+  </fieldset>
+
+  <button type="submit">{{ t("admin.product.save") if product else t("admin.product.create") }}</button>
+</form>
+
+{% if product %}
+<section class="admin-section" id="stock">
+  <h2>{{ t("admin.stock.heading") }}</h2>
+  {{ adjust_form(store, product, adjustment, "product") }}
+  <h3>{{ t("admin.stock.history") }}</h3>
+  <p><a href="/admin/stores/{{ store.slug }}/inventory/log?product={{ product.id }}">{{ t("admin.stock_log.product_link") }}</a></p>
+  {% if history %}
+  <table class="admin-table stock-history">
+    <thead><tr><th>{{ t("admin.stock.col.when") }}</th><th>{{ t("admin.stock.col.kind") }}</th><th>{{ t("admin.stock.col.change") }}</th>
+      <th>{{ t("admin.stock.col.after") }}</th><th>{{ t("admin.stock.col.reason") }}</th><th>{{ t("admin.stock.col.by") }}</th></tr></thead>
+    <tbody>
+      {% for m in history %}
+      <tr>
+        <td><time datetime="{{ m.created_at.isoformat() }}Z">{{ m.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</time></td>
+        <td>{{ kind_labels[m.kind] }}</td>
+        <td class="number">{{ "%+d"|format(m.delta) }}</td>
+        <td class="number">{{ m.quantity_after }}</td>
+        <td>{{ m.reason or "" }}</td>
+        <td>{{ m.user.email if m.user else "—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% if history_total > history|length %}<p class="meta">{{ t("admin.stock.history_more", shown=history|length, total=history_total) }}</p>{% endif %}
+  {% else %}
+  <p class="meta">{{ t("admin.stock.history_empty") }}</p>
+  {% endif %}
+</section>
+
+<section class="admin-section danger-zone">
+  <h2>{{ t("admin.product.delete_heading") }}</h2>
+  <p><a href="{{ base }}/{{ product.id }}/delete">{{ t("admin.product.delete_link") }}</a></p>
+</section>
+{% endif %}
+<p><a href="{{ base }}">{{ t("admin.product.back") }}</a></p>
+<script src="/static/admin-stock.js" defer></script>
+{% endblock %}

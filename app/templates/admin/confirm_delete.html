@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<p class="crumb"><a href="/admin/stores">{{ t("admin.nav.stores") }}</a> / <a href="/admin/stores/{{ store.slug }}">{{ store.name }}</a></p>
+<h1>{{ title }}</h1>
+{% if blockers %}
+<div class="form-error" role="alert">
+  <p>{{ t("admin.confirm.blocked") }}</p>
+  <ul>{% for b in blockers %}<li>{{ b }}</li>{% endfor %}</ul>
+</div>
+<p><a href="{{ cancel }}">{{ t("action.back") }}</a></p>
+{% else %}
+<p>{{ message }}</p>
+{% for c in consequences %}<p class="warning">{{ c }}</p>{% endfor %}
+<p>{{ t("admin.confirm.irreversible") }}</p>
+<form method="post" action="{{ action }}" class="inline-actions">
+  <button type="submit" class="danger">{{ t("action.delete") }}</button>
+  <a href="{{ cancel }}">{{ t("action.cancel") }}</a>
+</form>
+{% endif %}
+{% endblock %}

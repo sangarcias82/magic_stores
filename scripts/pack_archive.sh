@@ -9,6 +9,6 @@ tar --exclude='.git' --exclude='venv' --exclude='.venv' \
     --exclude='*.db' --exclude='.env' --exclude='*.pyc' \
     --exclude='.DS_Store' \
     -czf "$OUT" \
-    app tests requirements.txt README.md LICENSE .gitignore .env.example pytest.ini scripts fixtures
+    app tests requirements.txt README.md LICENSE .gitignore .env.example pytest.ini .coveragerc scripts fixtures
 echo "Wrote $OUT"
-tar -tzf "$OUT" | head -n 30
+tar -tzf "$OUT" | sed -n '1,30p'   # sed reads all input: no SIGPIPE under pipefail

@@ -1,0 +1,56 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+{% set base = "/admin/stores/" ~ store.slug ~ "/payments" %}
+<p class="crumb"><a href="{{ base }}">{{ t("admin.tabs.payments") }}</a> / {{ payment.public_id }}</p>
+<h1>{{ t("admin.payment.heading", id=payment.public_id) }}</h1>
+
+{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+<dl class="details">
+  <dt>{{ t("field.status") }}</dt><dd><strong data-status="{{ payment.status.value }}">{{ status_labels[payment.status] }}</strong></dd>
+  <dt>{{ t("admin.payments.col.amount") }}</dt><dd>{{ format_price(payment.amount_cents, payment.currency) }}</dd>
+  <dt>{{ t("admin.payments.col.terminal") }}</dt><dd>{{ payment.terminal.name }} <code>{{ payment.terminal.code }}</code></dd>
+  {% if payment.transfer_reference %}<dt>{{ t("admin.payment.reference") }}</dt><dd><code class="big-code">{{ payment.transfer_reference }}</code></dd>{% endif %}
+  <dt>{{ t("admin.payments.col.created") }}</dt><dd>{{ payment.created_at.strftime("%Y-%m-%d %H:%M:%S") }} UTC</dd>
+  {% if order %}<dt>{{ t("admin.payment.order") }}</dt><dd><code>{{ order.public_id }}</code> · {{ t("admin.payment.order_lines", count=order.lines|length) }}
+    <ul class="order-lines">{% for line in order.lines %}<li>{{ line.quantity }} × {{ line.name }}{% if line.sku %} <code>{{ line.sku }}</code>{% endif %} — {{ format_price(line.line_total_cents, order.currency) }}</li>{% endfor %}
+    <li>{{ t("admin.payment.shipping", name=order.shipping_name) }}: {{ format_price(order.shipping_cents, order.currency) }}</li></ul></dd>{% endif %}
+  {% if payment.decided_by or payment.decision_note %}
+  <dt>{{ t("admin.payment.decided_by") }}</dt><dd>{{ payment.decided_by.email if payment.decided_by else "—" }} · {{ payment.updated_at.strftime("%Y-%m-%d %H:%M:%S") }} UTC</dd>
+  {% if payment.decision_note %}<dt>{{ t("admin.payment.note") }}</dt><dd>{{ payment.decision_note }}</dd>{% endif %}
+  {% endif %}
+</dl>
+
+{% if instructions %}
+<section class="admin-section">
+  <h2>{{ t("admin.payment.instructions_heading") }}</h2>
+  <dl class="details">
+    <dt>{{ t("bank.bank") }}</dt><dd>{{ instructions.bank }}</dd>
+    <dt>{{ t("bank.beneficiary") }}</dt><dd>{{ instructions.beneficiary }}</dd>
+    <dt>{{ t("bank.clabe") }}</dt><dd><code>{{ instructions.clabe }}</code></dd>
+    {% if instructions.account %}<dt>{{ t("bank.account") }}</dt><dd><code>{{ instructions.account }}</code></dd>{% endif %}
+    <dt>{{ t("bank.reference") }}</dt><dd><code>{{ instructions.reference }}</code></dd>
+    <dt>{{ t("bank.concept") }}</dt><dd><code>{{ instructions.concept }}</code></dd>
+  </dl>
+</section>
+{% endif %}
+
+{% if payment.terminal.is_bank_transfer and payment.status.value == "pending" %}
+<section class="admin-section">
+  <h2>{{ t("admin.payment.decide_heading") }}</h2>
+  <p>{{ t("admin.payment.decide_intro", amount=format_price(payment.amount_cents, payment.currency), reference=payment.transfer_reference) }}</p>
+  <form method="post" class="stack-form admin-form decide-form">
+    <label for="note">{{ t("admin.payment.note_label") }}</label>
+    <input id="note" name="note" value="{{ note }}" maxlength="{{ note_max }}" autocomplete="off" placeholder="{{ t('admin.payment.note_placeholder') }}">
+    <p class="hint">{{ t("admin.payment.note_hint") }}</p>
+    <div class="decide-buttons">
+      <button type="submit" formaction="{{ base }}/{{ payment.public_id }}/confirm" class="confirm-button">{{ t("admin.payment.confirm") }}</button>
+      <button type="submit" formaction="{{ base }}/{{ payment.public_id }}/reject" class="reject-button">{{ t("admin.payment.reject") }}</button>
+    </div>
+  </form>
+</section>
+{% elif not payment.terminal.is_bank_transfer %}
+<p class="hint">{{ t("admin.payment.answered_by_terminal") }}
+  {% if payment.terminal.is_mock %}<a href="/admin/stores/{{ store.slug }}/try-payment/{{ payment.public_id }}">{{ t("admin.payment.try_link") }}</a>{% endif %}</p>
+{% endif %}
+<p><a href="{{ base }}">{{ t("admin.payment.back") }}</a></p>
+{% endblock %}

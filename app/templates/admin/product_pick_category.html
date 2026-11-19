@@ -1,0 +1,23 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import tree_label %}
+{% block admin_content %}
+<p class="crumb"><a href="/admin/stores/{{ store.slug }}/products">{{ t("admin.tabs.products") }}</a> / {{ t("admin.product.new") }}</p>
+<h1>{{ t("admin.product.new") }}</h1>
+{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+{% if tree %}
+<p>{{ t("admin.pick_category.intro") }}</p>
+<ul class="plain-list">
+  {% for c, depth in tree %}
+  <li class="depth-{{ depth if depth < 6 else 6 }}">
+    <a href="/admin/stores/{{ store.slug }}/products/new?category_id={{ c.id }}">{{ tree_label(c, depth) }}</a>
+    <span class="meta">{{ t("count.properties", count=c.property_definitions|length) }}</span>
+  </li>
+  {% endfor %}
+</ul>
+{% else %}
+<div class="empty">
+  <p>{{ t("admin.pick_category.no_categories") }}</p>
+  <p class="hint"><a href="/admin/stores/{{ store.slug }}/categories/new">{{ t("admin.products.create_category") }}</a> {{ t("admin.products.create_category_end") }}</p>
+</div>
+{% endif %}
+{% endblock %}

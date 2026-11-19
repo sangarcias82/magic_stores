@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+{% set base = "/admin/stores/" ~ store.slug ~ "/payments" %}
+<h1>{{ t("admin.tabs.payments") }}</h1>
+<p class="lede">{{ t("admin.payments.lede") }}</p>
+
+{% if payments %}
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>{{ t("admin.payments.col.id") }}</th><th>{{ t("admin.payments.col.amount") }}</th>
+      <th>{{ t("field.currency") }}</th><th>{{ t("admin.payments.col.terminal") }}</th><th>{{ t("field.status") }}</th>
+      <th>{{ t("admin.payments.col.created") }}</th><th>{{ t("admin.payments.col.updated") }}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in payments %}
+    <tr data-payment="{{ p.public_id }}" data-status="{{ p.status.value }}">
+      <td>{% if p.terminal.is_bank_transfer %}<a href="{{ base }}/{{ p.public_id }}"><code>{{ p.public_id }}</code></a>
+        <br><span class="meta">{{ t("admin.payment.reference") }} <code>{{ p.transfer_reference }}</code>{% if p.status.value == "pending" %} · {{ t("admin.payment.to_confirm") }}{% endif %}</span>
+        {% else %}<a href="/admin/stores/{{ store.slug }}/try-payment/{{ p.public_id }}"><code>{{ p.public_id }}</code></a>{% endif %}</td>
+      <td class="number">{{ amount(p.amount_cents) }}</td>
+      <td>{{ p.currency }}</td>
+      <td>{{ p.terminal.name }} <code>{{ p.terminal.code }}</code></td>
+      <td>{% if p.status.value == "pending" %}{{ status_labels[p.status] }}{% else %}<strong>{{ status_labels[p.status] }}</strong>{% endif %}</td>
+      <td><time datetime="{{ p.created_at.isoformat() }}Z">{{ p.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</time></td>
+      <td><time datetime="{{ p.updated_at.isoformat() }}Z">{{ p.updated_at.strftime("%Y-%m-%d %H:%M:%S") }}</time></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if page > 1 or has_older %}
+<nav class="pager" aria-label="{{ t('admin.tabs.payments') }}">
+  {% if page > 1 %}<a href="{{ base }}?page={{ page - 1 }}">{{ t("admin.imports.newer") }}</a>{% endif %}
+  {% if has_older %}<a href="{{ base }}?page={{ page + 1 }}">{{ t("admin.imports.older") }}</a>{% endif %}
+</nav>
+{% endif %}
+{% elif page > 1 %}
+<div class="empty"><p>{{ t("admin.payments.no_more") }} <a href="{{ base }}">{{ t("admin.imports.newer") }}</a></p></div>
+{% else %}
+<div class="empty">
+  <p>{{ t("admin.payments.empty") }}</p>
+  <p class="hint"><a href="/admin/stores/{{ store.slug }}/try-payment">{{ t("admin.payments.try_link") }}</a></p>
+</div>
+{% endif %}
+{% endblock %}

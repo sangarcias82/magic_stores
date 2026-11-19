@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<div class="admin-heading">
+  <h1>{{ t("admin.stores.title") }}</h1>
+  <a class="button" href="/admin/stores/new">{{ t("admin.stores.new") }}</a>
+</div>
+{% if stores %}
+<table class="admin-table">
+  <thead>
+    <tr><th>{{ t("field.name") }}</th><th>{{ t("field.slug") }}</th><th>{{ t("field.currency") }}</th><th>{{ t("field.locale") }}</th><th>{{ t("admin.stores.storefront") }}</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for s in stores %}
+    <tr>
+      <td><a href="/admin/stores/{{ s.slug }}">{{ s.name }}</a></td>
+      <td><code>{{ s.slug }}</code></td>
+      <td>{{ s.currency }}</td>
+      <td>{{ s.locale_default }}</td>
+      <td><a href="/stores/{{ s.slug }}">{{ t("action.view") }}</a></td>
+      <td><a href="/admin/stores/{{ s.slug }}">{{ t("admin.stores.manage_categories") }}</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">
+  <p>{{ t("admin.stores.empty") }}</p>
+  <p class="hint"><a href="/admin/stores/new">{{ t("admin.stores.create_first") }}</a>.</p>
+</div>
+{% endif %}
+{% endblock %}

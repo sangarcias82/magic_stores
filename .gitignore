@@ -34,3 +34,6 @@ _ocr_extract.txt
 guidelines.txt
 (EXT)_Code_Behaviors_-_Instructions.pdf
 *.pdf
+
+# curl cookie jar from README examples
+jar.txt

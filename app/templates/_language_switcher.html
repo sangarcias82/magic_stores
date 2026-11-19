@@ -1,0 +1,8 @@
+{% if language_links and language_links|length > 1 %}
+<span class="lang-switch" aria-label="{{ t('lang.switch') }}">
+  {% for l in language_links %}
+  {% if l.current %}<strong lang="{{ l.code }}" aria-current="true">{{ l.label }}</strong>
+  {% else %}<a href="{{ l.url }}" lang="{{ l.code }}" hreflang="{{ l.code }}">{{ l.label }}</a>{% endif %}
+  {% endfor %}
+</span>
+{% endif %}

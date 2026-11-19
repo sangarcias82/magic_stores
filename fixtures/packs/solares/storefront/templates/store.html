@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block content %}
+{% set en = lang == "en" %}
+<section class="solar-hero" data-storefront="solares">
+  <div class="solar-hero-text">
+    <p class="eyebrow">{{ "Hot water from the sun" if en else "Agua caliente con la energía del sol" }}</p>
+    <h1>{{ store.name }}</h1>
+    <p class="lede">{{ "Evacuated-tube solar water heaters from 8 to 20 tubes, and gas boilers as a backup."
+                       if en else "Calentadores solares de tubos al vacío de 8 a 20 tubos, y boilers de gas como respaldo." }}</p>
+    <a class="button" href="#catalog">{{ "See the heaters" if en else "Ver calentadores" }}</a>
+  </div>
+  {# A storefront static file (storefront/static/), served by Magic Stores; product photos come from the content app. #}
+  <img class="solar-hero-logo" src="/stores/{{ store.slug }}/assets/logo-solar.jpg" alt="">
+</section>
+
+<section class="tube-guide" aria-labelledby="guide-title">
+  <h2 id="guide-title">{{ "How many tubes do I need?" if en else "¿Cuántos tubos necesito?" }}</h2>
+  <ol class="tube-steps">
+    {% for tubes, people in [("8", "1–2"), ("12", "3"), ("16", "4–5"), ("20", "6+")] %}
+    <li><strong>{{ tubes }}</strong> {{ "tubes" if en else "tubos" }}
+      <span>{{ people }} {{ "people" if en else "personas" }}</span></li>
+    {% endfor %}
+  </ol>
+  <p class="hint">{{ "High pressure: homes with a pressure pump. Low pressure: homes with a rooftop tank (gravity)."
+                    if en else "Alta presión: casas con hidroneumático o bomba. Baja presión: casas con tinaco (gravedad)." }}</p>
+</section>
+
+<section id="catalog" class="solar-catalog">
+  <h2>{{ t("store.categories") }}</h2>
+  {% if categories %}
+  <ul class="category-cards">
+    {% for c in categories %}
+    <li>
+      <a href="/stores/{{ store.slug }}/c/{{ c.slug }}"><strong>{{ c.name }}</strong></a>
+      {% if c.description %}<p>{{ c.description }}</p>{% endif %}
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">{{ t("store.no_categories") }}</p>
+  {% endif %}
+
+  <h2>{{ t("store.products") }}</h2>
+  {% if products %}
+  <ul class="product-grid">
+    {% for p in products %}
+    <li>
+      <a href="/stores/{{ store.slug }}/p/{{ p.slug }}">{{ p.name }}</a>
+      <span class="price">{{ format_price(p.price_cents, store.currency) }}</span>
+    </li>
+    {% endfor %}
+  </ul>
+  {% else %}
+  <p class="empty">{{ t("store.catalog_empty") }}</p>
+  {% endif %}
+</section>
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ t("cart.title") }} · {{ store.name }}{% endblock %}
+{% block content %}
+<p class="crumb"><a href="/stores/{{ store.slug }}">{{ store.name }}</a> / {{ t("cart.title") }}</p>
+<h1>{{ t("cart.title") }}</h1>
+{# Filled by the React cart (app/static/cart/cart.js) from /api/stores/{{ store.slug }}/cart. #}
+<div id="cart-app" data-store="{{ store.slug }}"><p class="meta">{{ t("cart.loading") }}</p></div>
+<noscript><p class="empty">{{ t("cart.noscript") }}</p></noscript>
+{% endblock %}

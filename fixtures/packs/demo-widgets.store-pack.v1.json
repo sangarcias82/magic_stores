@@ -1,0 +1,223 @@
+{
+  "version": 1,
+  "store": {
+    "slug": "demo-widgets",
+    "name": "Widgets de demostración",
+    "currency": "USD",
+    "locale_default": "es",
+    "theme": {
+      "primary": "#112233",
+      "secondary": "#f5f5f5",
+      "accent": "#e67e22",
+      "logo_url": null
+    },
+    "i18n": {
+      "en": {
+        "name": "Demo Widgets"
+      }
+    }
+  },
+  "categories": [
+    {
+      "slug": "brands",
+      "name": "Marcas",
+      "description": "Marcas de referencia para category_ref",
+      "sort_order": 0,
+      "parent_slug": null,
+      "property_definitions": [],
+      "i18n": {
+        "en": {
+          "name": "Brands",
+          "description": "Brand reference category"
+        }
+      }
+    },
+    {
+      "slug": "acme",
+      "name": "Acme",
+      "description": "Marca Acme",
+      "sort_order": 1,
+      "parent_slug": "brands",
+      "property_definitions": [],
+      "i18n": {
+        "en": {
+          "name": "Acme",
+          "description": "Acme brand"
+        }
+      }
+    },
+    {
+      "slug": "widgets",
+      "name": "Widgets",
+      "description": "Categoría de prueba genérica (no solares)",
+      "sort_order": 2,
+      "parent_slug": null,
+      "property_definitions": [
+        {
+          "key": "color",
+          "label": "Color",
+          "prop_type": "enum",
+          "required": true,
+          "sort_order": 1,
+          "config": {
+            "options": ["Rojo", "Azul", "Verde"]
+          },
+          "i18n": {
+            "en": {
+              "label": "Color",
+              "config": {
+                "options": ["Red", "Blue", "Green"]
+              }
+            }
+          }
+        },
+        {
+          "key": "size",
+          "label": "Talla",
+          "prop_type": "enum",
+          "required": true,
+          "sort_order": 2,
+          "config": {
+            "options": ["S", "M", "L"]
+          },
+          "i18n": {
+            "en": {
+              "label": "Size"
+            }
+          }
+        },
+        {
+          "key": "weight_g",
+          "label": "Peso (g)",
+          "prop_type": "number",
+          "required": false,
+          "sort_order": 3,
+          "config": {},
+          "i18n": {
+            "en": {
+              "label": "Weight (g)"
+            }
+          }
+        },
+        {
+          "key": "waterproof",
+          "label": "Impermeable",
+          "prop_type": "boolean",
+          "required": false,
+          "sort_order": 4,
+          "config": {},
+          "i18n": {
+            "en": {
+              "label": "Waterproof"
+            }
+          }
+        },
+        {
+          "key": "photo",
+          "label": "Foto",
+          "prop_type": "image",
+          "required": false,
+          "sort_order": 5,
+          "config": {},
+          "i18n": {
+            "en": {
+              "label": "Photo"
+            }
+          }
+        },
+        {
+          "key": "brand",
+          "label": "Marca",
+          "prop_type": "category_ref",
+          "required": false,
+          "sort_order": 6,
+          "config": {},
+          "ref_category_slug": "brands",
+          "i18n": {
+            "en": {
+              "label": "Brand"
+            }
+          }
+        },
+        {
+          "key": "notes",
+          "label": "Notas",
+          "prop_type": "text",
+          "required": false,
+          "sort_order": 7,
+          "config": {},
+          "i18n": {
+            "en": {
+              "label": "Notes"
+            }
+          }
+        }
+      ],
+      "i18n": {
+        "en": {
+          "name": "Widgets",
+          "description": "Generic test category (not solar heaters)"
+        }
+      }
+    }
+  ],
+  "products": [
+    {
+      "slug": "widget-blue-m",
+      "name": "Widget azul M",
+      "description": "Producto de demostración para validar import y storefront",
+      "category_slug": "widgets",
+      "price_cents": 1999,
+      "is_active": true,
+      "values": {
+        "color": "Azul",
+        "size": "M",
+        "weight_g": 250,
+        "waterproof": false,
+        "photo": null,
+        "brand": "acme",
+        "notes": "Pack genérico T2"
+      },
+      "i18n": {
+        "en": {
+          "name": "Blue widget M",
+          "description": "Demo product for import and storefront checks",
+          "values": {
+            "color": "Blue",
+            "notes": "Generic T2 pack"
+          }
+        }
+      }
+    },
+    {
+      "slug": "widget-red-s",
+      "name": "Widget rojo S",
+      "description": "Segundo producto del fixture",
+      "category_slug": "widgets",
+      "price_cents": 1499,
+      "is_active": true,
+      "values": {
+        "color": "Rojo",
+        "size": "S",
+        "weight_g": 180,
+        "waterproof": true,
+        "brand": "acme",
+        "notes": "Segundo ítem"
+      },
+      "i18n": {
+        "en": {
+          "name": "Red widget S",
+          "description": "Second fixture product",
+          "values": {
+            "color": "Red",
+            "notes": "Second item"
+          }
+        }
+      }
+    }
+  ],
+  "storefront": {
+    "copy_from_pack_dir": null,
+    "notes": "T2: use _default storefront. Custom storefront copy is T3 (solares)."
+  }
+}

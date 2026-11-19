@@ -1,37 +1,47 @@
 {% extends "base.html" %}
 {% block content %}
-<p class="crumb"><a href="/stores/{{ store.slug }}">{{ store.name }}</a> / {{ product.name }}</p>
+<p class="crumb"><a href="/stores/{{ store.slug }}">{{ store.name }}</a> /
+  {% if category is defined and category %}<a href="/stores/{{ store.slug }}/c/{{ category.slug }}">{{ category.name }}</a> /{% endif %}
+  {{ product.name }}</p>
 <article class="product-detail">
   <h1>{{ product.name }}</h1>
   <p class="price">{{ format_price(product.price_cents, store.currency) }}</p>
   {% if product.description %}<p>{{ product.description }}</p>{% endif %}
 
-  <h2>Properties</h2>
+  <h2>{{ t("store.properties") }}</h2>
   {% if product.properties %}
   <dl class="props">
     {% for prop in product.properties %}
+    {% set kind = prop.prop_type.value if prop.prop_type.value is defined else prop.prop_type %}
     <dt>{{ prop.label }}</dt>
-    <dd>
-      {% if prop.prop_type.value == 'image' or prop.prop_type == 'image' %}
+    <dd class="prop prop-{{ kind }}" data-key="{{ prop.key }}">
+      {% if kind == 'image' %}
         {% if prop.value.media_path %}
-        <img src="{{ prop.value.media_path }}" alt="{{ prop.label }}" class="prop-image">
+        <img src="{{ media_url(prop.value.media_path) }}" alt="{{ prop.label }}" class="prop-image">
         {% else %}
-        <span class="meta">No image</span>
+        <span class="meta">{{ t("store.no_image") }}</span>
         {% endif %}
-      {% elif prop.prop_type.value == 'category_ref' or prop.prop_type == 'category_ref' %}
-        {% if prop.value.category_id %}
-        <span>Category #{{ prop.value.category_id }}</span>
+      {% elif kind == 'category_ref' %}
+        {% set ref = categories_by_id.get(prop.value.category_id) if (categories_by_id is defined and prop.value.category_id) else none %}
+        {% if ref %}
+        <a href="/stores/{{ store.slug }}/c/{{ ref.slug }}">{{ ref.name }}</a>
+        {% elif prop.value.category_id %}
+        <span>{{ t("store.category_ref", id=prop.value.category_id) }}</span>
         {% else %}
-        <span class="meta">No reference</span>
+        <span class="meta">—</span>
         {% endif %}
+      {% elif prop.value.value is not defined or prop.value.value is none %}
+        <span class="meta">—</span>
+      {% elif kind == 'boolean' %}
+        {{ t("value.yes") if prop.value.value else t("value.no") }}
       {% else %}
-        {{ prop.value.value if prop.value.value is defined else prop.value }}
+        {{ prop.value.value }}
       {% endif %}
     </dd>
     {% endfor %}
   </dl>
   {% else %}
-  <p class="empty">This product has no property values.</p>
+  <p class="empty">{{ t("store.no_properties") }}</p>
   {% endif %}
 </article>
 {% endblock %}

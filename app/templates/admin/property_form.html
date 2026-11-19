@@ -1,0 +1,60 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import invalid, error, tree_label %}
+{% block admin_content %}
+{% set cat_url = "/admin/stores/" ~ store.slug ~ "/categories/" ~ category.id %}
+<p class="crumb"><a href="/admin/stores">{{ t("admin.nav.stores") }}</a> / <a href="/admin/stores/{{ store.slug }}">{{ store.name }}</a> /
+  <a href="{{ cat_url }}">{{ category.name }}</a> / {{ definition.label if definition else t("admin.property.new") }}</p>
+<h1>{{ t("admin.property.heading", label=definition.label) if definition else t("admin.property.new") }}</h1>
+
+{% if form.errors %}<p class="form-error" role="alert">{{ t("form.fix_errors") }}</p>{% endif %}
+<form method="post" action="{{ cat_url }}/properties{% if definition %}/{{ definition.id }}{% endif %}"
+      class="stack-form admin-form" novalidate>
+  <label for="label">{{ t("field.label") }}</label>
+  <input id="label" name="label" value="{{ form.label }}" maxlength="200" placeholder="{{ t('admin.property.label_placeholder') }}" required {{ invalid(form, "label") }}>
+  {{ error(form, "label") }}
+
+  <label for="key">{{ t("field.key") }}</label>
+  <input id="key" name="key" value="{{ form.key }}" maxlength="64" placeholder="color" required {{ invalid(form, "key") }}>
+  {{ error(form, "key") }}
+  <p class="hint">{{ t("admin.property.key_hint") }}</p>
+
+  <label for="prop_type">{{ t("field.type") }}</label>
+  <select id="prop_type" name="prop_type" {{ invalid(form, "prop_type") }}>
+    {% for value, label in type_choices %}
+    <option value="{{ value }}" {% if form.prop_type == value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  {{ error(form, "prop_type") }}
+  {% if value_count %}<p class="hint">{{ t("admin.property.type_locked", count=value_count) }}</p>{% endif %}
+
+  <fieldset class="type-options">
+    <legend>{{ t("admin.property.enum_legend") }}</legend>
+    <label for="options">{{ t("admin.property.options") }}</label>
+    <textarea id="options" name="options" rows="5" placeholder="{{ t('admin.property.options_placeholder') }}" {{ invalid(form, "options") }}>{{ form.options }}</textarea>
+    {{ error(form, "options") }}
+    <p class="hint">{{ t("admin.property.only_used_when", type=type_labels_by_value["enum"]) }}</p>
+  </fieldset>
+
+  <fieldset class="type-options">
+    <legend>{{ type_labels_by_value["category_ref"] }}</legend>
+    <label for="ref_category_id">{{ t("admin.property.ref_category") }}</label>
+    <select id="ref_category_id" name="ref_category_id" {{ invalid(form, "ref_category_id") }}>
+      <option value="">{{ t("admin.property.ref_any") }}</option>
+      {% for c, depth in ref_choices %}
+      <option value="{{ c.id }}" {% if form.ref_category_id == c.id|string %}selected{% endif %}>{{ tree_label(c, depth) }}</option>
+      {% endfor %}
+    </select>
+    {{ error(form, "ref_category_id") }}
+    <p class="hint">{{ t("admin.property.only_used_when", type=type_labels_by_value["category_ref"]) }}</p>
+  </fieldset>
+
+  <label class="checkbox"><input type="checkbox" name="required" value="1" {% if form.required %}checked{% endif %}> {{ t("field.required") }}</label>
+
+  <label for="sort_order">{{ t("field.sort_order") }}</label>
+  <input id="sort_order" name="sort_order" value="{{ form.sort_order }}" inputmode="numeric" {{ invalid(form, "sort_order") }}>
+  {{ error(form, "sort_order") }}
+
+  <button type="submit">{{ t("admin.property.save") if definition else t("admin.property.add") }}</button>
+</form>
+<p><a href="{{ cat_url }}">{{ t("action.back_to", name=category.name) }}</a></p>
+{% endblock %}

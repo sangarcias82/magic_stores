@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang|default('es') }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -14,26 +14,81 @@
     }
   </style>
   {% endif %}
+  <link rel="stylesheet" href="/static/cart/cart.css">
   {% block head_extra %}{% endblock %}
 </head>
 <body class="storefront storefront-{{ store.slug }}">
   <header class="site-header">
     <div class="wrap">
-      <a class="brand" href="/stores/{{ store.slug }}">{{ store.name }}</a>
+      <a class="brand" href="/stores/{{ store.slug }}">
+        {%- if theme is defined and theme.logo_url %}<img src="{{ media_url(theme.logo_url) }}" alt="" class="brand-logo">{% endif -%}
+        {{ store.name }}</a>
       <nav>
-        <a href="/stores/{{ store.slug }}">Catalog</a>
+        <a href="/stores/{{ store.slug }}">{{ t("store.nav.catalog") }}</a>
         {% for page in store_pages|default([]) %}
         <a href="/stores/{{ store.slug }}/pages/{{ page }}">{{ page|replace('-', ' ')|title }}</a>
         {% endfor %}
-        <a href="/">All stores</a>
+        <a href="/">{{ t("store.nav.all_stores") }}</a>
+        <a href="/stores/{{ store.slug }}/cart" class="cart-link">{{ t("cart.nav") }}<span class="cart-count" data-cart-count hidden></span></a>
+        {% include "_language_switcher.html" %}
       </nav>
     </div>
   </header>
   <main class="wrap">
     {% block content %}{% endblock %}
+    {% if product is defined and product and product.id is defined %}
+    {# Below any product page (the store's own product.html too): the React "Add to cart" (cart.js). #}
+    <div id="cart-add" data-product-id="{{ product.id }}" data-in-stock="{{ 'true' if product.in_stock else 'false' }}"></div>
+    {% endif %}
   </main>
   <footer class="site-footer wrap">
-    <p>{% block footer %}Base storefront · per-store styles and pages{% endblock %}</p>
+    <p>{% block footer %}{{ t("store.footer") }}{% endblock %}</p>
   </footer>
+  {# The cart (app/static/cart/): its API, and its texts in this page's language. #}
+  {% set cart_texts = {
+    "loading": t("cart.loading"), "empty": t("cart.empty"), "continue": t("cart.continue"),
+    "add": t("cart.add"), "adding": t("cart.adding"), "added": t("cart.added"), "view_cart": t("cart.view_cart"),
+    "out_of_stock": t("cart.out_of_stock"), "quantity": t("cart.quantity"), "decrease": t("cart.decrease"),
+    "increase": t("cart.increase"), "remove": t("cart.remove"), "removing": t("cart.removing"),
+    "picture": t("cart.picture"), "product": t("cart.product"), "price": t("cart.price"),
+    "line_total": t("cart.line_total"), "subtotal": t("cart.subtotal"), "items": t("cart.items"),
+    "no_image": t("cart.no_image"), "add_heading": t("cart.add_heading"), "repriced": t("cart.repriced"),
+    "issue.out_of_stock": t("cart.issue.out_of_stock"), "issue.insufficient_stock": t("cart.issue.insufficient_stock"),
+    "issue.unavailable": t("cart.issue.unavailable"), "clear": t("cart.clear"), "clear_confirm": t("cart.clear_confirm"),
+    "clear_yes": t("cart.clear_yes"), "clear_no": t("cart.clear_no"), "clearing": t("cart.clearing"),
+    "reference_kind": t("cart.reference_kind"), "by_sku": t("cart.by_sku"), "by_id": t("cart.by_id"),
+    "reference": t("cart.reference"),
+    "checkout.heading": t("cart.checkout.heading"), "checkout.shipping": t("cart.checkout.shipping"),
+    "checkout.country": t("cart.checkout.country"), "checkout.terminal": t("cart.checkout.terminal"),
+    "checkout.shipping_cost": t("cart.checkout.shipping_cost"), "checkout.free": t("cart.checkout.free"),
+    "checkout.total": t("cart.checkout.total"), "checkout.quoting": t("cart.checkout.quoting"),
+    "checkout.pay": t("cart.checkout.pay"), "checkout.paying": t("cart.checkout.paying"),
+    "checkout.no_methods": t("cart.checkout.no_methods"), "checkout.no_terminals": t("cart.checkout.no_terminals"),
+    "checkout.done_heading": t("cart.checkout.done_heading"), "checkout.done": t("cart.checkout.done"),
+    "checkout.payment": t("cart.checkout.payment"), "checkout.cart_emptied": t("cart.checkout.cart_emptied"),
+    "payment_status.pending": t("cart.payment_status.pending"), "payment_status.succeeded": t("cart.payment_status.succeeded"),
+    "payment_status.failed": t("cart.payment_status.failed"),
+    "checkout.transfer_hint": t("cart.checkout.transfer_hint"), "checkout.pay_transfer": t("cart.checkout.pay_transfer"),
+    "checkout.order_link": t("cart.checkout.order_link"), "order.transfer_heading": t("order.transfer_heading"),
+    "order.transfer_intro": t("order.transfer_intro"), "bank.amount": t("bank.amount"), "bank.bank": t("bank.bank"),
+    "bank.beneficiary": t("bank.beneficiary"), "bank.clabe": t("bank.clabe"), "bank.account": t("bank.account"),
+    "bank.reference": t("bank.reference"), "bank.concept": t("bank.concept"),
+    "error.terminal_not_configured": t("cart.error.terminal_not_configured"),
+    "error.cart_empty": t("cart.error.cart_empty"), "error.unavailable": t("cart.error.unavailable"),
+    "error.price_changed": t("cart.error.price_changed"), "error.unknown_method": t("cart.error.unknown_method"),
+    "error.inactive_method": t("cart.error.inactive_method"), "error.country_required": t("cart.error.country_required"),
+    "error.country_not_served": t("cart.error.country_not_served"), "error.unknown_terminal": t("cart.error.unknown_terminal"),
+    "error.terminal_disabled": t("cart.error.terminal_disabled"), "error.nothing_to_pay": t("cart.error.nothing_to_pay"),
+    "error.total_too_large": t("cart.error.total_too_large"),
+    "error.out_of_stock": t("cart.error.out_of_stock"), "error.insufficient_stock": t("cart.error.insufficient_stock"),
+    "error.unknown_product": t("cart.error.unknown_product"), "error.quantity_limit": t("cart.error.quantity_limit"),
+    "error.cart_full": t("cart.error.cart_full"), "error.request_in_progress": t("cart.error.request_in_progress"),
+    "error.invalid": t("cart.error.invalid"), "error.generic": t("cart.error.generic"),
+  } %}
+  <script type="application/json" id="cart-config">{{ {"api": "/api/stores/" ~ store.slug ~ "/cart", "store_api": "/api/stores/" ~ store.slug, "cart_url": "/stores/" ~ store.slug ~ "/cart", "store_url": "/stores/" ~ store.slug, "lang": lang|default('es'), "names": checkout_names|default({}), "texts": cart_texts}|tojson }}</script>
+  <script src="/static/vendor/react-18.3.1/react.production.min.js" defer></script>
+  <script src="/static/vendor/react-18.3.1/react-dom.production.min.js" defer></script>
+  <script src="/static/cart/cart-core.js" defer></script>
+  <script src="/static/cart/cart.js" defer></script>
 </body>
 </html>

@@ -1,0 +1,39 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import tree_label %}
+{% block admin_content %}
+<p class="crumb"><a href="/admin/stores">{{ t("admin.nav.stores") }}</a> / {{ store.name }}</p>
+<div class="admin-heading">
+  <h1>{{ store.name }}</h1>
+  <a class="button" href="/admin/stores/{{ store.slug }}/categories/new">{{ t("admin.category.new") }}</a>
+</div>
+<p class="meta"><code>{{ store.slug }}</code> · {{ store.currency }} · {{ store.locale_default }}</p>
+
+<h2>{{ t("admin.tabs.categories") }}</h2>
+{% if tree %}
+<table class="admin-table">
+  <thead>
+    <tr><th>{{ t("field.name") }}</th><th>{{ t("field.slug") }}</th><th>{{ t("admin.store_detail.properties") }}</th><th>{{ t("admin.tabs.products") }}</th><th>{{ t("field.sort") }}</th><th></th></tr>
+  </thead>
+  <tbody>
+    {% for c, depth in tree %}
+    <tr>
+      <td class="depth-{{ depth if depth < 6 else 6 }}">{{ tree_label(c, depth) }}</td>
+      <td><code>{{ c.slug }}</code></td>
+      <td>{{ c.property_definitions|length }}</td>
+      <td><a href="/admin/stores/{{ store.slug }}/products?category_id={{ c.id }}">{{ product_counts.get(c.id, 0) }}</a></td>
+      <td>{{ c.sort_order }}</td>
+      <td class="actions">
+        <a href="/admin/stores/{{ store.slug }}/categories/{{ c.id }}">{{ t("action.edit") }}</a>
+        <a href="/admin/stores/{{ store.slug }}/categories/{{ c.id }}/delete">{{ t("action.delete") }}</a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">
+  <p>{{ t("admin.store_detail.empty") }}</p>
+  <p class="hint"><a href="/admin/stores/{{ store.slug }}/categories/new">{{ t("admin.store_detail.create_first") }}</a>{{ t("admin.store_detail.create_first_end") }}</p>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "store": {
+    "slug": "clothing-demo",
+    "name": "Demo Clothing",
+    "currency": "USD",
+    "locale_default": "en",
+    "theme": {
+      "primary": "#222222",
+      "secondary": "#fafafa",
+      "accent": "#b00020",
+      "logo_url": null
+    }
+  },
+  "categories": [
+    {
+      "slug": "shirts",
+      "name": "Shirts",
+      "description": "Generic clothing fixture (not a business seed)",
+      "sort_order": 0,
+      "parent_slug": null,
+      "property_definitions": [
+        {
+          "key": "size",
+          "label": "Size",
+          "prop_type": "enum",
+          "required": true,
+          "sort_order": 1,
+          "config": {
+            "options": ["S", "M", "L", "XL"]
+          }
+        },
+        {
+          "key": "color",
+          "label": "Color",
+          "prop_type": "enum",
+          "required": true,
+          "sort_order": 2,
+          "config": {
+            "options": ["Sand", "Navy", "White"]
+          }
+        },
+        {
+          "key": "material",
+          "label": "Material",
+          "prop_type": "text",
+          "required": false,
+          "sort_order": 3,
+          "config": {}
+        },
+        {
+          "key": "sleeve_length_cm",
+          "label": "Sleeve length (cm)",
+          "prop_type": "number",
+          "required": false,
+          "sort_order": 4,
+          "config": {}
+        },
+        {
+          "key": "machine_washable",
+          "label": "Machine washable",
+          "prop_type": "boolean",
+          "required": false,
+          "sort_order": 5,
+          "config": {}
+        }
+      ]
+    }
+  ],
+  "products": [
+    {
+      "slug": "linen-shirt-m",
+      "name": "Linen shirt",
+      "description": "Relaxed-fit linen shirt.",
+      "category_slug": "shirts",
+      "price_cents": 49900,
+      "is_active": true,
+      "values": {
+        "size": "M",
+        "color": "Sand",
+        "material": "100% linen",
+        "sleeve_length_cm": 62.5,
+        "machine_washable": true
+      }
+    }
+  ]
+}

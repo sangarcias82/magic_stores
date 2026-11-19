@@ -1,0 +1,40 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<h1>{{ t("admin.store_form.title") }}</h1>
+{% if form.errors %}
+<p class="form-error" role="alert">{{ t("form.fix_errors") }}</p>
+{% endif %}
+<form method="post" action="/admin/stores" class="stack-form admin-form" novalidate>
+  <label for="slug">{{ t("field.slug") }}</label>
+  <input id="slug" name="slug" value="{{ form.slug }}" placeholder="demo-widgets" maxlength="64" required
+         {% if form.errors.slug %}aria-invalid="true" aria-describedby="slug-error"{% endif %}>
+  {% if form.errors.slug %}<p class="field-error" id="slug-error">{{ form.errors.slug }}</p>{% endif %}
+  <p class="hint">{{ t("hint.used_in_urls") }} /stores/&lt;slug&gt;. {{ t("hint.slug_chars") }}</p>
+
+  <label for="name">{{ t("field.name") }}</label>
+  <input id="name" name="name" value="{{ form.name }}" placeholder="Demo Widgets" maxlength="200" required
+         {% if form.errors.name %}aria-invalid="true" aria-describedby="name-error"{% endif %}>
+  {% if form.errors.name %}<p class="field-error" id="name-error">{{ form.errors.name }}</p>{% endif %}
+
+  <label for="currency">{{ t("field.currency") }}</label>
+  <input id="currency" name="currency" value="{{ form.currency }}" maxlength="3" required
+         {% if form.errors.currency %}aria-invalid="true" aria-describedby="currency-error"{% endif %}>
+  {% if form.errors.currency %}<p class="field-error" id="currency-error">{{ form.errors.currency }}</p>{% endif %}
+  <p class="hint">{{ t("admin.store_form.currency_hint") }}</p>
+
+  <label for="locale_default">{{ t("admin.store_form.locale") }}</label>
+  <select id="locale_default" name="locale_default"
+          {% if form.errors.locale_default %}aria-invalid="true" aria-describedby="locale_default-error"{% endif %}>
+    {% for code, label in locale_choices %}
+    <option value="{{ code }}" {% if form.locale_default == code %}selected{% endif %}>{{ label }} ({{ code }})</option>
+    {% endfor %}
+  </select>
+  {% if form.errors.locale_default %}<p class="field-error" id="locale_default-error">{{ form.errors.locale_default }}</p>{% endif %}
+  <p class="hint">{{ t("admin.store_form.locale_hint") }}</p>
+
+  <p class="hint">{{ t("admin.store_form.theme_hint") }}</p>
+
+  <button type="submit">{{ t("admin.store_form.submit") }}</button>
+</form>
+<p><a href="/admin/stores">{{ t("admin.store_form.back") }}</a></p>
+{% endblock %}

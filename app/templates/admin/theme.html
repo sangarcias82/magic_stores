@@ -1,0 +1,31 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import invalid, error %}
+{% block admin_content %}
+<h1>{{ t("admin.tabs.theme") }}</h1>
+<p class="lede">{{ t("admin.theme.lede") }}
+  (<code>--color-primary</code>, <code>--color-secondary</code>, <code>--color-accent</code>).</p>
+
+{% if form.errors %}<p class="form-error" role="alert">{{ t("form.fix_errors") }}</p>{% endif %}
+<form method="post" action="/admin/stores/{{ store.slug }}/theme" class="stack-form admin-form" novalidate>
+  {% for key in ["primary", "secondary", "accent"] %}
+  <label for="{{ key }}">{{ labels[key] }}</label>
+  <div class="color-row">
+    <input type="color" id="{{ key }}" name="{{ key }}" value="{{ form[key] if not form.errors[key] else defaults[key] }}" {{ invalid(form, key) }}>
+    <code>{{ form[key] }}</code>
+    <span class="meta">{{ t("admin.theme.default", color=defaults[key]) }}</span>
+  </div>
+  {{ error(form, key) }}
+  {% endfor %}
+  <button type="submit">{{ t("admin.theme.save") }}</button>
+</form>
+
+<section class="admin-section">
+  <h2>{{ t("admin.theme.preview") }}</h2>
+  <div class="theme-preview" style="--p: {{ form.primary if not form.errors.primary else defaults.primary }}; --s: {{ form.secondary if not form.errors.secondary else defaults.secondary }}; --a: {{ form.accent if not form.errors.accent else defaults.accent }};">
+    <strong>{{ store.name }}</strong>
+    <span class="preview-link">{{ t("admin.theme.preview_link") }}</span>
+    <span class="preview-accent">{{ t("admin.theme.label.accent") }}</span>
+  </div>
+  <p><a href="/stores/{{ store.slug }}">{{ t("admin.theme.open_storefront") }}</a></p>
+</section>
+{% endblock %}

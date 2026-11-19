@@ -1,0 +1,16 @@
+{% extends "base_platform.html" %}
+{% block content %}
+<div class="admin-shell">
+  <nav class="admin-nav" aria-label="{{ t('nav.admin') }}">
+    <a href="/admin" {% if section == "dashboard" %}aria-current="page"{% endif %}>{{ t("admin.nav.dashboard") }}</a>
+    <a href="/admin/stores" {% if section == "stores" %}aria-current="page"{% endif %}>{{ t("admin.nav.stores") }}</a>
+    <a href="/admin/packs" {% if section == "packs" %}aria-current="page"{% endif %}>{{ t("admin.nav.packs") }}</a>
+    <a href="/admin/imports" {% if section == "imports" %}aria-current="page"{% endif %}>{{ t("admin.nav.imports") }}</a>
+  </nav>
+  <div class="admin-main">
+    {% if store is defined and store_tab is defined %}{% include "admin/_store_tabs.html" %}{% endif %}
+    {% if flash %}<p class="flash" role="status">{{ flash }}</p>{% endif %}
+    {% block admin_content %}{% endblock %}
+  </div>
+</div>
+{% endblock %}

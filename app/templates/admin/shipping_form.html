@@ -1,0 +1,46 @@
+{% extends "admin/base.html" %}
+{% from "admin/_forms.html" import invalid, error %}
+{% block admin_content %}
+{% set base = "/admin/stores/" ~ store.slug ~ "/shipping" %}
+<p class="crumb"><a href="{{ base }}">{{ t("admin.shipping.title") }}</a> / {{ display_name if method else t("admin.shipping.new") }}</p>
+<h1>{{ t("admin.shipping.heading", name=display_name) if method else t("admin.shipping.new") }}</h1>
+
+{% if form.errors %}<p class="form-error" role="alert">{{ t("form.fix_errors") }}</p>{% endif %}
+<form method="post" action="{{ base }}{% if method %}/{{ method.id }}{% endif %}" class="stack-form admin-form" novalidate>
+  <label for="name">{{ t("field.name") }}</label>
+  <input id="name" name="name" value="{{ form.name }}" maxlength="200" placeholder="{{ t('admin.shipping.placeholder.name') }}" required {{ invalid(form, "name") }}>
+  {{ error(form, "name") }}
+  <p class="hint">{{ t("admin.shipping.hint.name", locale=store.locale_default) }}
+    <a href="/admin/stores/{{ store.slug }}/translations">{{ t("admin.tabs.translations") }}</a>.</p>
+
+  <label for="code">{{ t("admin.shipping.field.code") }}</label>
+  <input id="code" name="code" value="{{ form.code }}" maxlength="64" placeholder="standard" required {{ invalid(form, "code") }}>
+  {{ error(form, "code") }}
+  <p class="hint">{{ t("admin.shipping.hint.code") }}</p>
+
+  <label for="rate">{{ t("admin.shipping.field.rate", currency=store.currency) }}</label>
+  <input id="rate" name="rate" value="{{ form.rate }}" inputmode="decimal" placeholder="4.95" required {{ invalid(form, "rate") }}>
+  {{ error(form, "rate") }}
+  <p class="hint">{{ t("admin.shipping.hint.rate") }}</p>
+
+  <label for="free_from">{{ t("admin.shipping.field.free_from", currency=store.currency) }}</label>
+  <input id="free_from" name="free_from" value="{{ form.free_from }}" inputmode="decimal" placeholder="50.00" {{ invalid(form, "free_from") }}>
+  {{ error(form, "free_from") }}
+  <p class="hint">{{ t("admin.shipping.hint.free_from") }}</p>
+
+  <label for="countries">{{ t("admin.shipping.field.countries") }}</label>
+  <input id="countries" name="countries" value="{{ form.countries }}" maxlength="1000" placeholder="ES, PT" {{ invalid(form, "countries") }}>
+  {{ error(form, "countries") }}
+  <p class="hint">{{ t("admin.shipping.hint.countries") }}</p>
+
+  <label for="sort_order">{{ t("field.sort_order") }}</label>
+  <input id="sort_order" name="sort_order" value="{{ form.sort_order }}" inputmode="numeric" {{ invalid(form, "sort_order") }}>
+  {{ error(form, "sort_order") }}
+  <p class="hint">{{ t("hint.sort_order") }}</p>
+
+  <label class="checkbox"><input type="checkbox" id="is_active" name="is_active" value="1" {% if form.is_active %}checked{% endif %}> {{ t("admin.shipping.field.active") }}</label>
+
+  <button type="submit">{{ t("admin.shipping.save") if method else t("admin.shipping.create") }}</button>
+</form>
+<p><a href="{{ base }}">{{ t("admin.shipping.back") }}</a></p>
+{% endblock %}

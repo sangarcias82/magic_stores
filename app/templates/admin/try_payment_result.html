@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+{% set base = "/admin/stores/" ~ store.slug ~ "/try-payment" %}
+<p class="crumb"><a href="{{ base }}">{{ t("admin.tabs.try_payment") }}</a> / {{ t("admin.try_payment.payment_title", id=payment.public_id) }}</p>
+<h1>{{ t("admin.try_payment.payment_title", id=payment.public_id) }}</h1>
+
+{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+<table class="admin-table">
+  <tbody>
+    <tr><th scope="row">{{ t("field.status") }}</th><td id="status" data-status="{{ payment.status.value }}"><strong>{{ status_labels[payment.status] }}</strong></td></tr>
+    <tr><th scope="row">{{ t("admin.try_payment.amount") }}</th><td id="amount" data-cents="{{ payment.amount_cents }}">{{ format_price(payment.amount_cents, payment.currency) }}</td></tr>
+    <tr><th scope="row">{{ t("admin.try_payment.terminal") }}</th><td>{{ payment.terminal.name }} <code>{{ payment.terminal.code }}</code></td></tr>
+    <tr><th scope="row">{{ t("admin.try_payment.reference") }}</th><td>{% if payment.mock_reference %}<code>{{ payment.mock_reference }}</code>{% else %}<span class="meta">—</span>{% endif %}</td></tr>
+    <tr><th scope="row">{{ t("admin.try_payment.created") }}</th><td>{{ payment.created_at.strftime("%Y-%m-%d %H:%M:%S") }} UTC</td></tr>
+    <tr><th scope="row">{{ t("admin.try_payment.updated") }}</th><td>{{ payment.updated_at.strftime("%Y-%m-%d %H:%M:%S") }} UTC</td></tr>
+  </tbody>
+</table>
+
+{% if payment.status.value == "pending" and not payment.terminal.is_mock %}
+<p class="hint">{{ t("admin.try_payment.real_terminal") }}</p>
+{% elif payment.status.value == "pending" %}
+<section class="admin-section">
+  <h2>{{ t("admin.try_payment.step_answer") }}</h2>
+  <form method="post" action="{{ base }}/{{ payment.public_id }}/succeed" class="stack-form admin-form">
+    <label for="mock_reference">{{ t("admin.try_payment.reference_optional") }}</label>
+    <input id="mock_reference" name="mock_reference" value="{{ reference }}" maxlength="64" placeholder="AUTH-123">
+    <p class="hint">{{ t("admin.try_payment.no_network") }}</p>
+    <div class="inline-actions">
+      <button type="submit">{{ t("admin.try_payment.succeed") }}</button>
+      <button type="submit" class="danger" formaction="{{ base }}/{{ payment.public_id }}/fail">{{ t("admin.try_payment.fail") }}</button>
+    </div>
+  </form>
+</section>
+{% endif %}
+
+<p><a href="{{ base }}">{{ t("admin.try_payment.again") }}</a> ·
+   <a href="/api/stores/{{ store.slug }}/payments/{{ payment.public_id }}">{{ t("admin.try_payment.as_json") }}</a></p>
+{% endblock %}

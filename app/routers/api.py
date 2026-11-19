@@ -64,6 +64,6 @@ def api_get_product(store_slug: str, product_slug: str, db: Session = Depends(ge
     if store is None:
         raise HTTPException(status_code=404, detail="Store not found")
     product = catalog.get_product_by_slug(db, store, product_slug)
-    if product is None:
+    if product is None or not product.is_active:  # hidden products are not public
         raise HTTPException(status_code=404, detail="Product not found")
     return product

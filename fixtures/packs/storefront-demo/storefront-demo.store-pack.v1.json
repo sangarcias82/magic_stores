@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "store": {
+    "slug": "storefront-demo",
+    "name": "Storefront Demo",
+    "currency": "USD",
+    "locale_default": "en",
+    "theme": {
+      "logo_url": "/content/storefront-demo/logo.png"
+    }
+  },
+  "categories": [
+    {
+      "slug": "gadgets",
+      "name": "Gadgets",
+      "property_definitions": [
+        {
+          "key": "photo",
+          "label": "Photo",
+          "prop_type": "image"
+        }
+      ]
+    }
+  ],
+  "products": [
+    {
+      "slug": "tiny-gadget",
+      "name": "Tiny gadget",
+      "category_slug": "gadgets",
+      "price_cents": 500,
+      "values": {
+        "photo": "/content/storefront-demo/tiny-gadget.png"
+      }
+    }
+  ],
+  "storefront": {
+    "copy_from_pack_dir": "storefront/",
+    "notes": "Imported from this folder: storefront/ is copied to app/storefronts/storefront-demo/ and media/ is published to CONTENT_ROOT/storefront-demo/ (the content app)."
+  }
+}

@@ -1,0 +1,30 @@
+{# The "adjust stock" form: a signed number (stepper) and a short reason, saved on its own (it
+   doesn't touch the rest of the product). Used in the product list and on the product page. #}
+{% macro adjust_form(store, product, form, return_to, category_id=None, sku_query="") -%}
+{% set did = "delta-" ~ product.id %}{% set rid = "reason-" ~ product.id %}
+{% set errors = form.errors if form else {} %}
+<form method="post" action="/admin/stores/{{ store.slug }}/products/{{ product.id }}/stock" class="stock-adjust" novalidate>
+  <input type="hidden" name="return" value="{{ return_to }}">
+  {% if category_id %}<input type="hidden" name="category_id" value="{{ category_id }}">{% endif %}
+  {% if sku_query %}<input type="hidden" name="filter_sku" value="{{ sku_query }}">{% endif %}
+  <div class="stock-adjust-fields">
+    <span class="stock-adjust-field">
+      <label for="{{ did }}">{{ t("admin.stock.delta") }}</label>
+      <span class="stepper"><input id="{{ did }}" name="delta" type="number" step="1" inputmode="numeric" value="{{ form.delta if form else '' }}"
+             placeholder="+5 / -2" class="stock-delta" data-stepper
+             data-minus-label="{{ t('admin.stock.minus_one') }}" data-plus-label="{{ t('admin.stock.plus_one') }}" required
+             {% if errors.delta %}aria-invalid="true" aria-describedby="{{ did }}-error"{% endif %}></span>
+    </span>
+    <span class="stock-adjust-field stock-adjust-reason">
+      <label for="{{ rid }}">{{ t("admin.stock.reason") }}</label>
+      <input id="{{ rid }}" name="reason" value="{{ form.reason if form else '' }}" maxlength="200"
+             placeholder="{{ t('admin.stock.reason_placeholder') }}" required
+             {% if errors.reason %}aria-invalid="true" aria-describedby="{{ rid }}-error"{% endif %}>
+    </span>
+    <button type="submit">{{ t("admin.stock.save") }}</button>
+  </div>
+  {% if errors.delta %}<p class="field-error" id="{{ did }}-error">{{ errors.delta }}</p>{% endif %}
+  {% if errors.reason %}<p class="field-error" id="{{ rid }}-error">{{ errors.reason }}</p>{% endif %}
+  <p class="hint">{{ t("admin.stock.hint", current=product.stock_on_hand) }}</p>
+</form>
+{%- endmacro %}

@@ -1,0 +1,56 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<div class="admin-heading">
+  <h1>{{ t("admin.imports.title") }}</h1>
+  <a class="button" href="/admin/packs">{{ t("admin.nav.packs") }}</a>
+</div>
+<p class="lede">{{ t("admin.imports.lede") }}</p>
+
+<form method="get" action="/admin/imports" class="filter-form">
+  <label for="status">{{ t("admin.imports.col.status") }}</label>
+  <select id="status" name="status">
+    <option value="">{{ t("admin.imports.all_statuses") }}</option>
+    {% for value, label in status_labels.items() %}
+    <option value="{{ value.value }}" {% if selected_status == value.value %}selected{% endif %}>{{ label }}</option>
+    {% endfor %}
+  </select>
+  <button type="submit">{{ t("action.filter") }}</button>
+</form>
+
+{% if records %}
+<table class="admin-table imports-table">
+  <thead>
+    <tr>
+      <th>{{ t("admin.imports.col.id") }}</th><th>{{ t("admin.imports.col.started") }}</th>
+      <th>{{ t("admin.imports.col.status") }}</th><th>{{ t("admin.imports.col.store") }}</th>
+      <th>{{ t("admin.imports.col.file") }}</th><th>{{ t("admin.imports.col.source") }}</th>
+      <th>{{ t("admin.imports.col.user") }}</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for r in records %}
+    <tr>
+      <td><a href="/admin/imports/{{ r.id }}">#{{ r.id }}</a></td>
+      <td>{{ r.started_at.strftime("%Y-%m-%d %H:%M:%S") }}</td>
+      <td><span class="import-status import-status-{{ r.status.value }}">{{ status_labels.get(r.status, r.status.value) }}</span></td>
+      <td>{% if r.store_slug %}<code>{{ r.store_slug }}</code>{% else %}<span class="meta">—</span>{% endif %}</td>
+      <td>{{ r.filename or "—" }}</td>
+      <td>{{ source_labels.get(r.source, r.source) }}</td>
+      <td>{{ r.user.email if r.user else "—" }}</td>
+      <td class="actions"><a href="/admin/imports/{{ r.id }}">{{ t("action.view") }}</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="empty">{{ t("admin.imports.empty") }}</p>
+{% endif %}
+
+{% if page > 1 or has_older %}
+{% set status_query = "&status=" ~ selected_status if selected_status else "" %}
+<nav class="pager" aria-label="{{ t('admin.imports.title') }}">
+  {% if page > 1 %}<a href="/admin/imports?page={{ page - 1 }}{{ status_query }}">{{ t("admin.imports.newer") }}</a>{% endif %}
+  {% if has_older %}<a href="/admin/imports?page={{ page + 1 }}{{ status_query }}">{{ t("admin.imports.older") }}</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

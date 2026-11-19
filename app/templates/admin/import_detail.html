@@ -1,0 +1,75 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+{% set r = record %}
+<p class="crumb"><a href="/admin/imports">{{ t("admin.imports.title") }}</a> / #{{ r.id }}</p>
+<h1>{{ t("admin.imports.record_title", id=r.id) }}
+  <span class="import-status import-status-{{ r.status.value }}">{{ status_labels.get(r.status, r.status.value) }}</span></h1>
+
+{% if r.status.value == "running" %}
+<p class="warning">{{ t("admin.imports.running_hint") }}</p>
+{% elif r.status.value == "failed" %}
+<p class="warning">{{ t("admin.imports.failed_hint") }}</p>
+{% endif %}
+
+<dl class="import-fields">
+  <dt>{{ t("admin.imports.col.started") }}</dt><dd>{{ r.started_at.strftime("%Y-%m-%d %H:%M:%S") }}</dd>
+  <dt>{{ t("admin.imports.field.finished") }}</dt>
+  <dd>{% if r.finished_at %}{{ r.finished_at.strftime("%Y-%m-%d %H:%M:%S") }} ({{ t("admin.imports.field.duration_ms", ms=r.duration_ms) }}){% else %}—{% endif %}</dd>
+  <dt>{{ t("admin.imports.col.source") }}</dt><dd>{{ source_labels.get(r.source, r.source) }}</dd>
+  <dt>{{ t("admin.imports.col.user") }}</dt><dd>{{ r.user.email if r.user else "—" }}</dd>
+  <dt>{{ t("admin.imports.col.file") }}</dt><dd>{{ r.filename or "—" }}</dd>
+  <dt>{{ t("admin.imports.field.bytes") }}</dt><dd>{{ r.file_bytes if r.file_bytes is not none else "—" }}</dd>
+  <dt>SHA-256</dt><dd>{% if r.file_sha256 %}<code>{{ r.file_sha256 }}</code>{% else %}—{% endif %}</dd>
+  <dt>{{ t("admin.packs.update_existing") }}</dt><dd>{{ t("value.yes") if r.update_existing else t("value.no") }}</dd>
+  <dt>{{ t("admin.imports.col.store") }}</dt>
+  <dd>{% if r.store_slug %}<code>{{ r.store_slug }}</code>
+    {% if r.store_id %} · <a href="/admin/stores/{{ r.store_slug }}">{{ t("admin.stores.manage_categories") }}</a>
+    · <a href="/stores/{{ r.store_slug }}">{{ t("admin.tabs.view_storefront") }}</a>{% endif %}
+    {% if r.store_created is not none %} · {{ t("admin.imports.field.store_created") if r.store_created else t("admin.imports.field.store_updated") }}{% endif %}
+  {% else %}—{% endif %}</dd>
+</dl>
+
+{% if r.report %}
+{% set rep = r.report %}
+<section class="admin-section">
+  <h2>{{ t("admin.imports.report") }}</h2>
+  <table class="admin-table">
+    <thead><tr><th></th><th>{{ t("admin.imports.report.created") }}</th><th>{{ t("admin.imports.report.updated") }}</th></tr></thead>
+    <tbody>
+      <tr><td>{{ t("admin.tabs.categories") }}</td><td>{{ rep.categories.created }}</td><td>{{ rep.categories.updated }}</td></tr>
+      <tr><td>{{ t("admin.store_detail.properties") }}</td><td>{{ rep.properties.created }}</td><td>{{ rep.properties.updated }}</td></tr>
+      <tr><td>{{ t("admin.tabs.products") }}</td><td>{{ rep.products.created }}</td><td>{{ rep.products.updated }}</td></tr>
+      {% if rep.shipping_methods and (rep.shipping_methods.created or rep.shipping_methods.updated) %}
+      <tr><td>{{ t("admin.tabs.shipping") }}</td><td>{{ rep.shipping_methods.created }}</td><td>{{ rep.shipping_methods.updated }}</td></tr>
+      {% endif %}
+    </tbody>
+  </table>
+  <p class="meta">{{ t("admin.imports.report.values", written=rep.values_written, removed=rep.values_removed) }}
+    · {{ t("admin.imports.report.translations", written=rep.translations_written) }}</p>
+  {% if rep.skipped %}
+  <p class="meta">{{ t("admin.imports.report.skipped") }}</p>
+  <ul>{% for note in rep.skipped %}<li>{{ note }}</li>{% endfor %}</ul>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if r.issues %}
+<section class="admin-section">
+  <h2>{{ t("admin.imports.issues") }}</h2>
+  <ul class="pack-issues">
+    {% for issue in r.issues %}
+    <li>{% if issue.path %}<code>{{ issue.path }}</code>: {% endif %}{{ issue.message }}</li>
+    {% endfor %}
+  </ul>
+</section>
+{% endif %}
+
+{% if r.exception %}
+<section class="admin-section">
+  <h2>{{ t("admin.imports.exception") }}</h2>
+  <pre class="import-exception">{{ r.exception }}</pre>
+</section>
+{% endif %}
+
+<p><a href="/admin/imports">{{ t("admin.imports.back") }}</a></p>
+{% endblock %}

@@ -1,0 +1,385 @@
+{
+  "version": 1,
+  "store": {
+    "slug": "solares",
+    "name": "Solares",
+    "currency": "MXN",
+    "locale_default": "es",
+    "theme": {
+      "primary": "#0077b6",
+      "secondary": "#fff6d5",
+      "accent": "#ffb703",
+      "logo_url": "/content/solares/logo-solar.jpg"
+    },
+    "i18n": {
+      "en": {
+        "name": "Solares"
+      }
+    }
+  },
+  "categories": [
+    {
+      "slug": "calentadores-solares",
+      "name": "Calentadores solares",
+      "description": "Sistemas de tubos al vacío de 8 a 20 tubos. Alta presión para casas con hidroneumático o bomba; baja presión (por gravedad) para casas con tinaco.",
+      "sort_order": 1,
+      "property_definitions": [
+        {
+          "key": "tubos",
+          "label": "Número de tubos",
+          "prop_type": "enum",
+          "required": true,
+          "sort_order": 1,
+          "config": {
+            "options": [
+              "8",
+              "10",
+              "12",
+              "14",
+              "16",
+              "18",
+              "20"
+            ]
+          },
+          "i18n": {
+            "en": {
+              "label": "Number of tubes"
+            }
+          }
+        },
+        {
+          "key": "presion",
+          "label": "Presión",
+          "prop_type": "enum",
+          "required": true,
+          "sort_order": 2,
+          "config": {
+            "options": [
+              "alta",
+              "baja"
+            ]
+          },
+          "i18n": {
+            "en": {
+              "label": "Pressure",
+              "config": {
+                "options": [
+                  "high",
+                  "low"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "key": "capacidad_litros",
+          "label": "Capacidad (litros)",
+          "prop_type": "number",
+          "sort_order": 3,
+          "i18n": {
+            "en": {
+              "label": "Capacity (liters)"
+            }
+          }
+        },
+        {
+          "key": "personas",
+          "label": "Personas (aprox.)",
+          "prop_type": "number",
+          "sort_order": 4,
+          "i18n": {
+            "en": {
+              "label": "People (approx.)"
+            }
+          }
+        },
+        {
+          "key": "respaldo_gas",
+          "label": "Admite respaldo de gas",
+          "prop_type": "boolean",
+          "sort_order": 5,
+          "i18n": {
+            "en": {
+              "label": "Gas backup ready"
+            }
+          }
+        },
+        {
+          "key": "foto",
+          "label": "Foto",
+          "prop_type": "image",
+          "sort_order": 6,
+          "i18n": {
+            "en": {
+              "label": "Photo"
+            }
+          }
+        }
+      ],
+      "i18n": {
+        "en": {
+          "name": "Solar water heaters",
+          "description": "Evacuated-tube systems from 8 to 20 tubes. High pressure for homes with a pressure pump; low pressure (gravity) for homes with a rooftop tank."
+        }
+      }
+    },
+    {
+      "slug": "calentadores-gas",
+      "name": "Calentadores de gas",
+      "description": "Opcional: boilers de gas como respaldo para días nublados o para instalar solos.",
+      "sort_order": 2,
+      "property_definitions": [
+        {
+          "key": "tipo_gas",
+          "label": "Tipo de gas",
+          "prop_type": "enum",
+          "required": true,
+          "sort_order": 1,
+          "config": {
+            "options": [
+              "Gas LP",
+              "Gas natural"
+            ]
+          },
+          "i18n": {
+            "en": {
+              "label": "Gas type",
+              "config": {
+                "options": [
+                  "LP gas",
+                  "Natural gas"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "key": "capacidad_litros",
+          "label": "Capacidad (litros)",
+          "prop_type": "number",
+          "sort_order": 2,
+          "i18n": {
+            "en": {
+              "label": "Capacity (liters)"
+            }
+          }
+        },
+        {
+          "key": "foto",
+          "label": "Foto",
+          "prop_type": "image",
+          "sort_order": 3,
+          "i18n": {
+            "en": {
+              "label": "Photo"
+            }
+          }
+        }
+      ],
+      "i18n": {
+        "en": {
+          "name": "Gas water heaters",
+          "description": "Optional: gas boilers as a backup for cloudy days, or on their own."
+        }
+      }
+    }
+  ],
+  "products": [
+    {
+      "slug": "solar-8-tubos-alta",
+      "sku": "SOL-8T-ALTA",
+      "stock": 1,
+      "name": "Calentador solar 8 tubos, alta presión",
+      "description": "Equipo compacto de 8 tubos para 1 o 2 personas. Alta presión: funciona con hidroneumático o bomba.",
+      "category_slug": "calentadores-solares",
+      "price_cents": 649900,
+      "values": {
+        "tubos": "8",
+        "presion": "alta",
+        "capacidad_litros": 100,
+        "personas": 2,
+        "respaldo_gas": true,
+        "foto": "/content/solares/tubo-8-alta.jpg"
+      },
+      "i18n": {
+        "en": {
+          "name": "Solar heater, 8 tubes, high pressure",
+          "description": "Compact 8-tube system for 1 or 2 people. High pressure: works with a pressure pump."
+        }
+      }
+    },
+    {
+      "slug": "solar-12-tubos-baja",
+      "sku": "SOL-12T-BAJA",
+      "stock": 1,
+      "name": "Calentador solar 12 tubos, baja presión",
+      "description": "12 tubos para 3 personas. Baja presión: se alimenta por gravedad desde el tinaco.",
+      "category_slug": "calentadores-solares",
+      "price_cents": 729900,
+      "values": {
+        "tubos": "12",
+        "presion": "baja",
+        "capacidad_litros": 150,
+        "personas": 3,
+        "respaldo_gas": false,
+        "foto": "/content/solares/tubo-12-baja.jpg"
+      },
+      "i18n": {
+        "en": {
+          "name": "Solar heater, 12 tubes, low pressure",
+          "description": "12 tubes for 3 people. Low pressure: fed by gravity from a rooftop tank."
+        }
+      }
+    },
+    {
+      "slug": "solar-16-tubos-alta",
+      "sku": "SOL-16T-ALTA",
+      "stock": 1,
+      "name": "Calentador solar 16 tubos, alta presión",
+      "description": "16 tubos para una familia de 4 a 5 personas, alta presión.",
+      "category_slug": "calentadores-solares",
+      "price_cents": 1349900,
+      "values": {
+        "tubos": "16",
+        "presion": "alta",
+        "capacidad_litros": 200,
+        "personas": 5,
+        "respaldo_gas": true,
+        "foto": "/content/solares/tubo-16-alta.jpg"
+      },
+      "i18n": {
+        "en": {
+          "name": "Solar heater, 16 tubes, high pressure",
+          "description": "16 tubes for a family of 4 to 5, high pressure."
+        }
+      }
+    },
+    {
+      "slug": "solar-20-tubos-alta",
+      "sku": "SOL-20T-ALTA",
+      "stock": 1,
+      "name": "Calentador solar 20 tubos, alta presión",
+      "description": "El equipo más grande: 20 tubos para 6 personas o más, alta presión.",
+      "category_slug": "calentadores-solares",
+      "price_cents": 1699900,
+      "values": {
+        "tubos": "20",
+        "presion": "alta",
+        "capacidad_litros": 250,
+        "personas": 6,
+        "respaldo_gas": true,
+        "foto": "/content/solares/tubo-20-alta.jpg"
+      },
+      "i18n": {
+        "en": {
+          "name": "Solar heater, 20 tubes, high pressure",
+          "description": "The largest system: 20 tubes for 6 people or more, high pressure."
+        }
+      }
+    },
+    {
+      "slug": "boiler-gas-40-litros",
+      "sku": "GAS-BOIL-40L",
+      "stock": 1,
+      "name": "Boiler de gas de depósito 40 L",
+      "description": "Respaldo ideal para los calentadores solares de alta presión en días nublados.",
+      "category_slug": "calentadores-gas",
+      "price_cents": 519900,
+      "values": {
+        "tipo_gas": "Gas LP",
+        "capacidad_litros": 40,
+        "foto": "/content/solares/gas-boiler.jpg"
+      },
+      "i18n": {
+        "en": {
+          "name": "Gas storage boiler, 40 L",
+          "description": "The ideal backup for high-pressure solar heaters on cloudy days."
+        }
+      }
+    }
+  ],
+  "shipping_methods": [
+    {
+      "code": "standard",
+      "name": "Envío estándar (3 a 7 días hábiles)",
+      "rate_cents": 45000,
+      "free_shipping_threshold_cents": 1000000,
+      "countries": [
+        "MX"
+      ],
+      "sort_order": 0,
+      "is_active": true,
+      "i18n": {
+        "en": {
+          "name": "Standard shipping (3 to 7 business days)"
+        }
+      }
+    },
+    {
+      "code": "express",
+      "name": "Envío express (1 a 2 días hábiles)",
+      "rate_cents": 120000,
+      "free_shipping_threshold_cents": null,
+      "countries": [
+        "MX"
+      ],
+      "sort_order": 1,
+      "is_active": true,
+      "i18n": {
+        "en": {
+          "name": "Express shipping (1 to 2 business days)"
+        }
+      }
+    }
+  ],
+  "payment_terminals": [
+    {
+      "code": "bank_transfer",
+      "name": "Transferencia bancaria",
+      "kind": "bank_transfer",
+      "enabled": true,
+      "sort_order": 0,
+      "config": {
+        "bank": "Banco Ejemplo",
+        "beneficiary": "Solares (cuenta de ejemplo)",
+        "clabe": "002180001234567896",
+        "account": "1234567890",
+        "note": "Haz una transferencia SPEI por el monto exacto y escribe la referencia de 7 dígitos. Confirmamos el depósito en horario hábil y entonces preparamos tu pedido."
+      },
+      "i18n": {
+        "en": {
+          "name": "Bank transfer",
+          "note": "Make a SPEI transfer for the exact amount and write the 7-digit reference. We confirm the deposit during business hours and then prepare your order."
+        }
+      }
+    },
+    {
+      "code": "mock_card",
+      "name": "Mock card",
+      "kind": "mock",
+      "enabled": false,
+      "sort_order": 10
+    },
+    {
+      "code": "mock_transfer",
+      "name": "Mock bank transfer",
+      "kind": "mock",
+      "enabled": false,
+      "sort_order": 11
+    }
+  ],
+  "storefront": {
+    "copy_from_pack_dir": "storefront/",
+    "notes": "Templates (store.html, product.html) and a full style.css for the solar look. Images are in media/ and are published to the content app as /content/solares/<file>."
+  },
+  "ui_translations": {
+    "es": {
+      "store.footer": "Solares · Agua caliente con la energía del sol",
+      "store.nav.catalog": "Calentadores"
+    },
+    "en": {
+      "store.footer": "Solares · Hot water from the sun",
+      "store.nav.catalog": "Heaters"
+    }
+  }
+}

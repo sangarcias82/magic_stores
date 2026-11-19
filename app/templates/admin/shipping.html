@@ -1,0 +1,42 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+{% set base = "/admin/stores/" ~ store.slug ~ "/shipping" %}
+<div class="admin-heading">
+  <h1>{{ t("admin.shipping.title") }}</h1>
+  <a class="button" href="{{ base }}/new">{{ t("admin.shipping.new") }}</a>
+</div>
+<p class="lede">{{ t("admin.shipping.lede", currency=store.currency) }}</p>
+
+{% if methods %}
+<table class="admin-table">
+  <thead>
+    <tr>
+      <th>{{ t("field.name") }}</th><th>{{ t("admin.shipping.field.code") }}</th>
+      <th>{{ t("admin.shipping.col.rate") }}</th><th>{{ t("admin.shipping.col.free_from") }}</th>
+      <th>{{ t("admin.shipping.field.countries") }}</th><th>{{ t("field.sort") }}</th>
+      <th>{{ t("field.status") }}</th><th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in methods %}
+    <tr data-code="{{ m.code }}">
+      <td><a href="{{ base }}/{{ m.id }}">{{ names.get(m.id, m.name) }}</a>
+        {% if names.get(m.id, m.name) != m.name %}<br><span class="meta" lang="{{ store.locale_default }}">{{ m.name }}</span>{% endif %}</td>
+      <td><code>{{ m.code }}</code></td>
+      <td>{{ format_price(m.rate_cents, store.currency) }}</td>
+      <td>{% if m.free_shipping_threshold_cents is not none %}{{ format_price(m.free_shipping_threshold_cents, store.currency) }}{% else %}<span class="meta">—</span>{% endif %}</td>
+      <td>{% if m.countries %}{{ m.countries | join(", ") }}{% else %}<span class="meta">{{ t("admin.shipping.all_countries") }}</span>{% endif %}</td>
+      <td>{{ m.sort_order }}</td>
+      <td>{% if m.is_active %}{{ t("status.active") }}{% else %}<span class="meta">{{ t("status.inactive") }}</span>{% endif %}</td>
+      <td class="actions"><a href="{{ base }}/{{ m.id }}">{{ t("action.edit") }}</a></td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<div class="empty">
+  <p>{{ t("admin.shipping.empty") }}</p>
+  <p class="hint"><a href="{{ base }}/new">{{ t("admin.shipping.create_first") }}</a>.</p>
+</div>
+{% endif %}
+{% endblock %}

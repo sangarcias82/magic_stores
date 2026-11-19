@@ -1,0 +1,14 @@
+{% set store_base = "/admin/stores/" ~ store.slug %}
+<nav class="store-tabs" aria-label="{{ store.name }}">
+  <strong class="store-tabs-name">{{ store.name }}</strong>
+  <a href="{{ store_base }}" {% if store_tab == "categories" %}aria-current="page"{% endif %}>{{ t("admin.tabs.categories") }}</a>
+  <a href="{{ store_base }}/products" {% if store_tab == "products" %}aria-current="page"{% endif %}>{{ t("admin.tabs.products") }}</a>
+  <a href="{{ store_base }}/inventory" {% if store_tab == "inventory" %}aria-current="page"{% endif %}>{{ t("admin.tabs.inventory") }}</a>
+  <a href="{{ store_base }}/theme" {% if store_tab == "theme" %}aria-current="page"{% endif %}>{{ t("admin.tabs.theme") }}</a>
+  <a href="{{ store_base }}/shipping" {% if store_tab == "shipping" %}aria-current="page"{% endif %}>{{ t("admin.tabs.shipping") }}</a>
+  <a href="{{ store_base }}/terminals" {% if store_tab == "terminals" %}aria-current="page"{% endif %}>{{ t("admin.tabs.terminals") }}</a>
+  <a href="{{ store_base }}/try-payment" {% if store_tab == "try_payment" %}aria-current="page"{% endif %}>{{ t("admin.tabs.try_payment") }}</a>
+  <a href="{{ store_base }}/payments" {% if store_tab == "payments" %}aria-current="page"{% endif %}>{{ t("admin.tabs.payments") }}</a>
+  <a href="{{ store_base }}/translations" {% if store_tab == "translations" %}aria-current="page"{% endif %}>{{ t("admin.tabs.translations") }}</a>
+  <a href="/stores/{{ store.slug }}" class="store-tabs-view">{{ t("admin.tabs.view_storefront") }} ↗</a>
+</nav>

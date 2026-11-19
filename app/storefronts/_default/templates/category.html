@@ -6,7 +6,7 @@
 
 {% if category.property_definitions is defined and category.property_definitions %}
 <section>
-  <h2>Property schema</h2>
+  <h2>{{ t("store.property_schema") }}</h2>
   <ul class="plain-list">
     {% for d in category.property_definitions %}
     <li><strong>{{ d.label }}</strong> <code>{{ d.key }}</code> · {{ d.prop_type.value if d.prop_type.value is defined else d.prop_type }}</li>
@@ -16,7 +16,7 @@
 {% endif %}
 
 <section>
-  <h2>Products</h2>
+  <h2>{{ t("store.products") }}</h2>
   {% if products %}
   <ul class="product-grid">
     {% for p in products %}
@@ -27,7 +27,7 @@
     {% endfor %}
   </ul>
   {% else %}
-  <p class="empty">No products in this category.</p>
+  <p class="empty">{{ t("store.no_products_in_category") }}</p>
   {% endif %}
 </section>
 {% endblock %}

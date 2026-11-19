@@ -1,0 +1,77 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+{% set base = "/admin/stores/" ~ store.slug ~ "/try-payment" %}
+{% macro field_error(name) -%}
+{% if errors[name] %}<p class="field-error" id="{{ name }}-error">{{ errors[name] }}</p>{% endif %}
+{%- endmacro %}
+{% macro invalid(name) -%}
+{% if errors[name] %}aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %}
+{%- endmacro %}
+<h1>{{ t("admin.tabs.try_payment") }}</h1>
+<p class="lede">{{ t("admin.try_payment.lede", currency=store.currency) }}</p>
+
+{% if not methods %}
+{% if errors %}<div class="form-error" role="alert">{% for message in errors.values() %}<p>{{ message }}</p>{% endfor %}</div>{% endif %}
+<div class="empty">
+  <p>{{ t("admin.try_payment.no_methods") }}</p>
+  <p class="hint"><a href="/admin/stores/{{ store.slug }}/shipping/new">{{ t("admin.try_payment.create_method") }}</a>.</p>
+</div>
+{% else %}
+<h2>{{ t("admin.try_payment.step_quote") }}</h2>
+{% if errors %}<p class="form-error" role="alert">{{ t("form.fix_errors") }}</p>{% endif %}
+<form method="get" action="{{ base }}" class="stack-form admin-form" novalidate>
+  <label for="subtotal">{{ t("admin.try_payment.subtotal", currency=store.currency) }}</label>
+  <input id="subtotal" name="subtotal" value="{{ form.subtotal }}" inputmode="decimal" placeholder="1000.00" required {{ invalid("subtotal") }}>
+  {{ field_error("subtotal") }}
+
+  <label for="method">{{ t("admin.try_payment.method") }}</label>
+  <select id="method" name="method" {{ invalid("method") }}>
+    {% for m in methods %}
+    <option value="{{ m.code }}" {% if form.method == m.code %}selected{% endif %}>{{ names.get(m.id, m.name) }} ({{ format_price(m.rate_cents, store.currency) }})</option>
+    {% endfor %}
+  </select>
+  {{ field_error("method") }}
+
+  <label for="country">{{ t("admin.try_payment.country") }}</label>
+  <input id="country" name="country" value="{{ form.country }}" maxlength="2" placeholder="MX" {{ invalid("country") }}>
+  {{ field_error("country") }}
+  <p class="hint">{{ t("admin.try_payment.country_hint") }}</p>
+
+  <button type="submit">{{ t("admin.try_payment.quote") }}</button>
+</form>
+
+{% if checkout %}
+<section class="admin-section" id="quote">
+  <h2>{{ t("admin.try_payment.step_pay") }}</h2>
+  <table class="admin-table quote-table">
+    <tbody>
+      <tr><th scope="row">{{ t("admin.try_payment.subtotal_row") }}</th><td data-cents="{{ checkout.subtotal_cents }}">{{ format_price(checkout.subtotal_cents, checkout.currency) }}</td></tr>
+      <tr><th scope="row">{{ t("admin.try_payment.shipping_row", method=names.get(checkout.method.id, checkout.method.name)) }}</th>
+          <td data-cents="{{ checkout.shipping_cents }}">{{ format_price(checkout.shipping_cents, checkout.currency) }}{% if checkout.free_shipping %} <span class="meta">({{ t("admin.try_payment.free_shipping") }})</span>{% endif %}</td></tr>
+      <tr><th scope="row">{{ t("admin.try_payment.total_row") }}</th><td id="total" data-cents="{{ checkout.total_cents }}"><strong>{{ format_price(checkout.total_cents, checkout.currency) }}</strong></td></tr>
+    </tbody>
+  </table>
+
+  {% if terminals %}
+  <form method="post" action="{{ base }}/pay" class="stack-form admin-form">
+    <input type="hidden" name="subtotal" value="{{ form.subtotal }}">
+    <input type="hidden" name="method" value="{{ form.method }}">
+    <input type="hidden" name="country" value="{{ form.country }}">
+    <label for="terminal">{{ t("admin.try_payment.terminal") }}</label>
+    <select id="terminal" name="terminal" {{ invalid("terminal") }}>
+      {% for term in terminals %}
+      <option value="{{ term.code }}" {% if form.terminal == term.code %}selected{% endif %}>{{ term.name }}</option>
+      {% endfor %}
+    </select>
+    {{ field_error("terminal") }}
+    <p class="hint">{{ t("admin.try_payment.no_network") }}</p>
+    <button type="submit">{{ t("admin.try_payment.pay", amount=format_price(checkout.total_cents, checkout.currency)) }}</button>
+  </form>
+  {% else %}
+  {{ field_error("terminal") }}
+  <p class="form-error">{{ t("admin.try_payment.no_terminals") }}</p>
+  {% endif %}
+</section>
+{% endif %}
+{% endif %}
+{% endblock %}

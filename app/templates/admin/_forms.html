@@ -1,0 +1,12 @@
+{# Shared form helpers for admin pages. #}
+{% macro invalid(form, name) -%}
+{% if form.errors[name] %}aria-invalid="true" aria-describedby="{{ name }}-error"{% endif %}
+{%- endmacro %}
+
+{% macro error(form, name) -%}
+{% if form.errors[name] %}<p class="field-error" id="{{ name }}-error">{{ form.errors[name] }}</p>{% endif %}
+{%- endmacro %}
+
+{% macro tree_label(category, depth) -%}
+{{ "— " * depth }}{{ category.name }}
+{%- endmacro %}

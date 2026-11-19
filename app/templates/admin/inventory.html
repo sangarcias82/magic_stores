@@ -1,0 +1,70 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+{% set products = "/admin/stores/" ~ store.slug ~ "/products" %}
+{% set base = "/admin/stores/" ~ store.slug ~ "/inventory" %}
+<p class="crumb"><a href="{{ products }}">{{ t("admin.tabs.products") }}</a> / {{ t("admin.inventory.title") }}</p>
+<h1>{{ t("admin.inventory.title") }}</h1>
+<p>{{ t("admin.inventory.intro") }}</p>
+<p><a href="{{ base }}/log">{{ t("admin.stock_log.link") }}</a>
+  · <a href="{{ base }}/low-stock" class="low-stock-link">{{ t("admin.low_stock.link", count=low_count) }}</a></p>
+
+{% if error %}<p class="form-error" role="alert">{{ error }}</p>{% endif %}
+
+{% if report %}
+<section class="admin-section inventory-report" id="report">
+  <h2>{{ t("admin.inventory.result.heading", file=report.filename) }}</h2>
+  <p class="flash" role="status">{{ t("admin.inventory.result.summary", applied=report.count("applied"), unchanged=report.count("unchanged"), refused=report.count("refused")) }}</p>
+  {% if report.applied %}
+  <h3>{{ t("admin.inventory.result.applied") }}</h3>
+  <table class="admin-table">
+    <thead><tr><th>{{ t("admin.inventory.col.line") }}</th><th>{{ t("field.sku") }}</th><th>{{ t("admin.inventory.col.change") }}</th><th>{{ t("admin.inventory.col.price") }}</th></tr></thead>
+    <tbody>
+      {% for row in report.applied %}
+      <tr><td class="number">{{ row.line }}</td><td><code>{{ row.sku }}</code></td>
+        <td class="number">{% if row.stock_changed %}{{ row.before }} → {{ row.after }}{% else %}—{% endif %}</td>
+        <td class="number">{% if row.price_changed %}{{ format_price(row.price_before, store.currency) }} → {{ format_price(row.price_after, store.currency) }}{% else %}—{% endif %}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+  {% if refused %}
+  <h3>{{ t("admin.inventory.result.refused") }}</h3>
+  <table class="admin-table inventory-refused">
+    <thead><tr><th>{{ t("admin.inventory.col.line") }}</th><th>{{ t("field.sku") }}</th><th>{{ t("admin.inventory.col.reason") }}</th></tr></thead>
+    <tbody>
+      {% for row, reason in refused %}
+      <tr><td class="number">{{ row.line }}</td><td><code>{{ row.sku }}</code></td><td class="field-error">{{ reason }}</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</section>
+{% endif %}
+
+<section class="admin-section">
+  <h2>{{ t("admin.inventory.export_heading") }}</h2>
+  <p>{{ t("admin.inventory.export_intro") }}</p>
+  {% if store_has_products %}
+  <p><a class="button" href="{{ products }}/export.csv" download>{{ t("admin.inventory.export") }}</a></p>
+  {% else %}
+  <p class="meta">{{ t("admin.inventory.error.no_products") }}</p>
+  {% endif %}
+</section>
+
+<section class="admin-section">
+  <h2>{{ t("admin.inventory.import_heading") }}</h2>
+  <ul class="hint">
+    <li>{{ t("admin.inventory.import_rule_match") }}</li>
+    <li>{{ t("admin.inventory.import_rule_partial") }}</li>
+    <li>{{ t("admin.inventory.import_rule_refused") }}</li>
+    <li>{{ t("admin.inventory.import_rule_changed") }}</li>
+  </ul>
+  <form method="post" action="{{ base }}/import" enctype="multipart/form-data" class="stack-form admin-form">
+    <label for="file">{{ t("admin.inventory.file", max_mb=max_mb) }}</label>
+    <input id="file" name="file" type="file" accept=".csv,text/csv" required>
+    <label class="checkbox"><input type="checkbox" name="force" value="1" {% if force %}checked{% endif %}> {{ t("admin.inventory.force") }}</label>
+    <button type="submit">{{ t("admin.inventory.submit") }}</button>
+  </form>
+</section>
+<p><a href="{{ products }}">{{ t("admin.product.back") }}</a></p>
+{% endblock %}

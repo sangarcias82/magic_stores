@@ -1,0 +1,17 @@
+# Coverage for `pytest --cov` (pytest-cov reads this file). The suite must keep app/ at or
+# above 90 % (line + branch); `pytest -q --cov` fails below that.
+[run]
+source = app
+branch = true
+# Jinja templates compile to code that coverage would try to report as source (and tests write
+# temporary storefront templates); only Python files are measured.
+omit = *.html
+
+[report]
+fail_under = 90
+show_missing = true
+skip_covered = true
+precision = 1
+exclude_lines =
+    pragma: no cover
+    if __name__ == .__main__.:

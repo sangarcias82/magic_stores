@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Optional
@@ -7,6 +8,9 @@ from typing import Optional
 from fastapi.templating import Jinja2Templates
 from jinja2 import ChoiceLoader, Environment, FileSystemLoader, select_autoescape
 from starlette.responses import FileResponse, Response
+
+from app.i18n import template_context
+from app.services.media import media_url
 
 STOREFRONTS_ROOT = Path(__file__).resolve().parent.parent / "storefronts"
 DEFAULT_KEY = "_default"
@@ -56,8 +60,9 @@ def list_store_pages(store_slug: str) -> list[str]:
 
 
 @lru_cache(maxsize=32)
-def templates_for(store_slug: str, root: str = "") -> Jinja2Templates:
-    # ``root`` is part of the cache key so tests can re-point STOREFRONTS_ROOT.
+def templates_for(store_slug: str, root: str = "", folder_version: tuple = ()) -> Jinja2Templates:
+    # ``root`` is part of the cache key so tests can re-point STOREFRONTS_ROOT; ``folder_version``
+    # (see _templates_folder_version) so a new or replaced store templates folder is picked up.
     base = Path(root) if root else STOREFRONTS_ROOT
     loaders = []
     store_templates = base / store_slug / "templates"
@@ -68,26 +73,65 @@ def templates_for(store_slug: str, root: str = "") -> Jinja2Templates:
         loader=ChoiceLoader(loaders),
         autoescape=select_autoescape(["html", "xml"]),
     )
-    return Jinja2Templates(env=env)
+    env.globals["media_url"] = media_url  # stored image path -> URL for src (content app aware)
+    return Jinja2Templates(env=env, context_processors=[template_context])
+
+
+def _templates_folder_version(store_slug: str) -> tuple:
+    """Identity of ``<root>/<slug>/templates``: () when missing, else (inode, mtime). It changes
+    when a pack import installs or replaces the folder, even from another process (the command
+    line), so the cached environment of a store never hides a newly copied override. Edits to
+    existing template files are picked up by Jinja's own auto-reload."""
+    try:
+        stat = (STOREFRONTS_ROOT / store_slug / "templates").stat()
+    except OSError:
+        return ()
+    return (stat.st_ino, stat.st_mtime_ns)
 
 
 def templates_for_store(store_slug: str) -> Jinja2Templates:
-    return templates_for(store_slug, str(STOREFRONTS_ROOT))
+    return templates_for(store_slug, str(STOREFRONTS_ROOT), _templates_folder_version(store_slug))
 
 
 @lru_cache(maxsize=1)
 def platform_templates() -> Jinja2Templates:
-    return Jinja2Templates(directory=str(PLATFORM_TEMPLATES))
+    return Jinja2Templates(directory=str(PLATFORM_TEMPLATES), context_processors=[template_context])
+
+
+DEFAULT_THEME: dict = {
+    "primary": "#1a5f4a",
+    "secondary": "#f7f4ef",
+    "accent": "#c45c26",
+    "logo_url": None,
+}
+
+
+THEME_COLOR_KEYS = ("primary", "secondary", "accent")
+_HEX_COLOR_RE = re.compile(r"^#(?:[0-9a-f]{3}|[0-9a-f]{6})$")
+# Colors are rendered inside a <style> block, where HTML escaping does not help. Only allow
+# characters needed for hex / named / rgb() / hsl() colors, so a value can't close the rule.
+_SAFE_CSS_COLOR_RE = re.compile(r"^[#a-zA-Z0-9(),.%\s-]{1,64}$")
+
+
+def normalize_hex_color(value: object) -> Optional[str]:
+    """'#ABC' / '#aabbcc' -> '#aabbcc'; anything else -> None."""
+    if not isinstance(value, str):
+        return None
+    value = value.strip().lower()
+    if not _HEX_COLOR_RE.match(value):
+        return None
+    if len(value) == 4:
+        value = "#" + "".join(ch * 2 for ch in value[1:])
+    return value
 
 
 def theme_from_store(store) -> dict:
-    defaults = {
-        "primary": "#1a5f4a",
-        "secondary": "#f7f4ef",
-        "accent": "#c45c26",
-        "logo_url": None,
-    }
-    return {**defaults, **(store.theme or {})}
+    theme = {**DEFAULT_THEME, **(store.theme or {})}
+    for key in THEME_COLOR_KEYS:
+        value = theme.get(key)
+        if not isinstance(value, str) or not _SAFE_CSS_COLOR_RE.match(value):
+            theme[key] = DEFAULT_THEME[key]
+    return theme
 
 
 def static_response(store_slug: str, relative_path: str) -> Response:

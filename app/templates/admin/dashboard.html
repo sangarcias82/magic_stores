@@ -1,0 +1,11 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+<h1>{{ t("admin.dashboard.title") }}</h1>
+<p class="lede">{{ t("admin.dashboard.signed_in_as") }} <strong>{{ user.email }}</strong> ({{ user.role.value }}).</p>
+<ul class="plain-list">
+  <li><a href="/admin/stores">{{ t("admin.nav.stores") }}</a> <span class="meta">{{ t("admin.dashboard.total", count=store_count) }}</span></li>
+  <li><a href="/admin/stores/new">{{ t("admin.dashboard.create_store") }}</a></li>
+  <li><a href="/admin/packs">{{ t("admin.nav.packs") }}</a></li>
+  <li><a href="/admin/imports">{{ t("admin.nav.imports") }}</a></li>
+</ul>
+{% endblock %}

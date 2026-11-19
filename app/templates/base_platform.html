@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ lang }}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -11,8 +11,17 @@
     <div class="wrap">
       <a class="brand" href="/">Magic Stores</a>
       <nav>
-        <a href="/">Stores</a>
+        <a href="/">{{ t("nav.stores") }}</a>
         <a href="/api/health">API</a>
+        {% if request.session.get("user_id") %}
+        <a href="/admin">{{ t("nav.admin") }}</a>
+        <form class="inline-form" method="post" action="/logout">
+          <button type="submit" class="link-button">{{ t("nav.sign_out") }}</button>
+        </form>
+        {% else %}
+        <a href="/login">{{ t("nav.sign_in") }}</a>
+        {% endif %}
+        {% include "_language_switcher.html" %}
       </nav>
     </div>
   </header>
@@ -20,7 +29,7 @@
     {% block content %}{% endblock %}
   </main>
   <footer class="site-footer wrap">
-    <p>Configurable multi-store engine — the catalog is data; each store can have its own storefront.</p>
+    <p>{{ t("platform.footer") }}</p>
   </footer>
 </body>
 </html>

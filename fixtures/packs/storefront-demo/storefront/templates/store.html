@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block head_extra %}<link rel="stylesheet" href="/stores/{{ store.slug }}/assets/extra.css">{% endblock %}
+{% block content %}
+<section class="hero themed" data-storefront="pack-override">
+  <h1>{{ store.name }}: pack storefront</h1>
+</section>
+<ul class="product-grid">
+  {% for p in products %}
+  <li><a href="/stores/{{ store.slug }}/p/{{ p.slug }}">{{ p.name }}</a></li>
+  {% endfor %}
+</ul>
+{% endblock %}

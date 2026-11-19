@@ -111,6 +111,7 @@ def get_product_by_slug(db: Session, store: Store, slug: str) -> Optional[Produc
         description=product.description,
         price_cents=product.price_cents,
         is_active=product.is_active,
+        in_stock=product.in_stock,
         category_id=product.category_id,
         properties=_product_properties(product),
     )

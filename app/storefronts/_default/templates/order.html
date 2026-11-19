@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block head_extra %}<meta name="robots" content="noindex">{% endblock %}
+{% block content %}
+{% set o = view.order %}{% set pay = view.payment %}
+<p class="crumb"><a href="/stores/{{ store.slug }}">{{ store.name }}</a> / {{ t("order.title", id=o.id) }}</p>
+<h1>{{ t("order.title", id=o.id) }}</h1>
+{% set status_text = {"awaiting_payment": t("order.status.awaiting_payment"), "paid": t("order.status.paid"),
+                      "payment_failed": t("order.status.payment_failed")} %}
+<p class="order-status order-status-{{ o.status }}"><strong>{{ status_text[o.status] }}</strong></p>
+
+{% if pay.instructions and pay.status == "pending" %}
+<section class="order-transfer" aria-labelledby="transfer-heading">
+  <h2 id="transfer-heading">{{ t("order.transfer_heading") }}</h2>
+  <p>{{ t("order.transfer_intro", amount=pay.instructions.amount_display) }}</p>
+  <dl class="order-transfer-details">
+    <dt>{{ t("bank.amount") }}</dt><dd><strong>{{ pay.instructions.amount_display }}</strong></dd>
+    <dt>{{ t("bank.bank") }}</dt><dd>{{ pay.instructions.bank }}</dd>
+    <dt>{{ t("bank.beneficiary") }}</dt><dd>{{ pay.instructions.beneficiary }}</dd>
+    <dt>{{ t("bank.clabe") }}</dt><dd><code>{{ pay.instructions.clabe }}</code></dd>
+    {% if pay.instructions.account %}<dt>{{ t("bank.account") }}</dt><dd><code>{{ pay.instructions.account }}</code></dd>{% endif %}
+    <dt>{{ t("bank.reference") }}</dt><dd><code class="order-reference">{{ pay.instructions.reference }}</code></dd>
+    <dt>{{ t("bank.concept") }}</dt><dd><code>{{ pay.instructions.concept }}</code></dd>
+  </dl>
+  {% if transfer_note %}<p class="order-transfer-note">{{ transfer_note }}</p>{% endif %}
+</section>
+{% endif %}
+
+<table class="order-lines">
+  <thead><tr><th>{{ t("cart.product") }}</th><th>{{ t("cart.quantity") }}</th><th>{{ t("cart.price") }}</th><th>{{ t("cart.line_total") }}</th></tr></thead>
+  <tbody>
+    {% for line in o.lines %}
+    <tr><td>{{ line.name_translations.get(lang) or line.name }}{% if line.sku %}<div class="cart-sku">SKU <code>{{ line.sku }}</code></div>{% endif %}</td>
+      <td class="cart-num">{{ line.quantity }}</td><td class="cart-num">{{ line.unit_price_display }}</td><td class="cart-num">{{ line.line_total_display }}</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+<dl class="order-totals">
+  <dt>{{ t("cart.subtotal") }}</dt><dd>{{ o.subtotal_display }}</dd>
+  <dt>{{ t("order.shipping", name=shipping_name) }}</dt><dd>{{ t("cart.checkout.free") if o.shipping.free_shipping else o.shipping_display }}</dd>
+  <dt>{{ t("cart.checkout.total") }}</dt><dd><strong>{{ o.total_display }}</strong></dd>
+</dl>
+<p class="meta">{{ t("order.payment", id=pay.id) }}</p>
+<p><a href="/stores/{{ store.slug }}">{{ t("cart.continue") }}</a></p>
+{% endblock %}

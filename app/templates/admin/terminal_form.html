@@ -1,0 +1,41 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+{% set base = "/admin/stores/" ~ store.slug ~ "/terminals" %}
+<p class="crumb"><a href="{{ base }}">{{ t("admin.tabs.terminals") }}</a> / {{ terminal.name }}</p>
+<h1>{{ t("admin.terminals.heading", name=terminal.name) }}</h1>
+<p class="meta">{{ t("admin.terminals.code") }}: <code>{{ terminal.code }}</code>
+  · {{ t("admin.terminals.mock") if terminal.is_mock else (t("admin.terminals.bank_transfer") if terminal.is_bank_transfer else t("admin.terminals.real")) }}</p>
+<p class="hint">{{ t("admin.terminals.code_hint") }}</p>
+
+{% if errors %}<p class="form-error" role="alert">{{ t("form.fix_errors") }}</p>{% endif %}
+<form method="post" action="{{ base }}/{{ terminal.id }}" class="stack-form admin-form" novalidate>
+  <label for="name">{{ t("admin.terminals.name") }}</label>
+  <input id="name" name="name" value="{{ form.name }}" maxlength="200" required
+         {% if errors.name %}aria-invalid="true" aria-describedby="name-error"{% endif %}>
+  {% if errors.name %}<p class="field-error" id="name-error">{{ errors.name }}</p>{% endif %}
+
+  <label class="checkbox"><input type="checkbox" id="is_enabled" name="is_enabled" value="1" {% if form.is_enabled %}checked{% endif %}> {{ t("admin.terminals.enabled_field") }}</label>
+  <p class="hint">{{ t("admin.terminals.enabled_hint") }}</p>
+
+  {% if terminal.is_bank_transfer %}
+  <fieldset class="type-options">
+    <legend>{{ t("admin.terminals.bank_heading") }}</legend>
+    <p class="hint">{{ t("admin.terminals.bank_hint") }}</p>
+    {% set labels = {"bank": t("admin.terminals.bank.bank"), "beneficiary": t("admin.terminals.bank.beneficiary"),
+                     "clabe": t("admin.terminals.bank.clabe"), "account": t("admin.terminals.bank.account")} %}
+    {% for field, max in (("bank", 100), ("beneficiary", 200), ("clabe", 22), ("account", 24)) %}
+    <label for="{{ field }}">{{ labels[field] }}</label>
+    <input id="{{ field }}" name="{{ field }}" value="{{ form[field] }}" maxlength="{{ max }}" {% if field in ("clabe", "account") %}inputmode="numeric" autocomplete="off"{% endif %}
+           {% if errors[field] %}aria-invalid="true" aria-describedby="{{ field }}-error"{% endif %}>
+    {% if errors[field] %}<p class="field-error" id="{{ field }}-error">{{ errors[field] }}</p>{% endif %}
+    {% endfor %}
+    <label for="note">{{ t("admin.terminals.bank.note") }}</label>
+    <textarea id="note" name="note" rows="3" maxlength="500" {% if errors.note %}aria-invalid="true" aria-describedby="note-error"{% endif %}>{{ form.note }}</textarea>
+    {% if errors.note %}<p class="field-error" id="note-error">{{ errors.note }}</p>{% endif %}
+  </fieldset>
+  {% endif %}
+
+  <button type="submit">{{ t("admin.terminals.save") }}</button>
+</form>
+<p><a href="{{ base }}">{{ t("admin.terminals.back") }}</a></p>
+{% endblock %}

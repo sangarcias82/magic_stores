@@ -1,0 +1,54 @@
+{% extends "admin/base.html" %}
+{% block admin_content %}
+{% set base = "/admin/stores/" ~ store.slug ~ "/inventory/log" %}
+{% set products = "/admin/stores/" ~ store.slug ~ "/products" %}
+<p class="crumb"><a href="/admin/stores/{{ store.slug }}/inventory">{{ t("admin.inventory.title") }}</a> / {{ t("admin.stock_log.title") }}</p>
+<h1>{{ t("admin.stock_log.title") }}</h1>
+<p>{{ t("admin.stock_log.intro") }}</p>
+
+<form method="get" action="{{ base }}" class="filter-form">
+  <label for="log-sku">{{ t("admin.products.sku_search") }}</label>
+  <input id="log-sku" name="sku" type="search" value="{{ sku_query }}" maxlength="64" autocomplete="off" spellcheck="false">
+  <label for="log-reason">{{ t("admin.stock_log.reason_search") }}</label>
+  <input id="log-reason" name="reason" type="search" value="{{ reason_query }}" maxlength="200" autocomplete="off">
+  <label for="log-kind">{{ t("admin.stock.col.kind") }}</label>
+  <select id="log-kind" name="kind">
+    <option value="">{{ t("admin.stock_log.all_kinds") }}</option>
+    {% for k in kinds %}<option value="{{ k.value }}" {% if kind == k.value %}selected{% endif %}>{{ kind_labels[k] }}</option>{% endfor %}
+  </select>
+  {% if product_id %}<input type="hidden" name="product" value="{{ product_id }}">{% endif %}
+  <button type="submit">{{ t("action.filter") }}</button>
+  {% if query %}<a href="{{ base }}">{{ t("admin.products.clear_filters") }}</a>{% endif %}
+</form>
+{% if product_filter %}<p class="meta">{{ t("admin.stock_log.only_product", name=product_filter.name) }}</p>{% endif %}
+
+<p class="meta">{{ t("admin.stock_log.count", total=total) }}{% if pages > 1 %} · {{ t("admin.stock_log.page", page=page, pages=pages) }}{% endif %}</p>
+{% if movements %}
+<table class="admin-table stock-log">
+  <thead><tr><th>{{ t("admin.stock.col.when") }}</th><th>{{ t("admin.stock_log.col.product") }}</th><th>{{ t("field.sku") }}</th>
+    <th>{{ t("admin.stock.col.kind") }}</th><th>{{ t("admin.stock.col.change") }}</th><th>{{ t("admin.stock.col.after") }}</th>
+    <th>{{ t("admin.stock.col.reason") }}</th><th>{{ t("admin.stock.col.by") }}</th></tr></thead>
+  <tbody>
+    {% for m in movements %}
+    <tr>
+      <td><time datetime="{{ m.created_at.isoformat() }}Z">{{ m.created_at.strftime("%Y-%m-%d %H:%M:%S") }}</time></td>
+      <td><a href="{{ products }}/{{ m.product_id }}#stock">{{ m.product.name }}</a></td>
+      <td>{% if m.product.sku %}<code>{{ m.product.sku }}</code>{% else %}<span class="meta">{{ t("value.not_set") }}</span>{% endif %}</td>
+      <td>{{ kind_labels[m.kind] }}</td>
+      <td class="number">{{ "%+d"|format(m.delta) }}</td>
+      <td class="number">{{ m.quantity_after }}</td>
+      <td>{{ m.reason or "" }}</td>
+      <td>{{ m.user.email if m.user else "—" }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% set q = query_string %}
+<p class="pager">
+  {% if page > 1 %}<a href="{{ base }}?{{ q }}{% if q %}&amp;{% endif %}page={{ page - 1 }}">← {{ t("admin.stock_log.newer") }}</a>{% endif %}
+  {% if page < pages %}<a href="{{ base }}?{{ q }}{% if q %}&amp;{% endif %}page={{ page + 1 }}">{{ t("admin.stock_log.older") }} →</a>{% endif %}
+</p>
+{% else %}
+<p class="empty">{{ t("admin.stock_log.empty") }}</p>
+{% endif %}
+{% endblock %}
